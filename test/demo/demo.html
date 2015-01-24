@@ -53,12 +53,42 @@
   <script src="../../src/axis.collider.js"></script>
 
   <script src="demo.js"></script>
-  <script src="demo.game.js"></script>
+  <script src="demo.gameworld.js"></script>
   <script src="demo.entitymanager.js"></script>
   <script src="demo.canvasrenderer.js"></script>
   <script src="demo.tilemanager.js"></script>
   <script src="demo.entity.js"></script>
 
-  <script> DEMO.init(); </script>
+  <script>
+(function(){
+
+  console.log(DEMO);
+
+  var renderer = new DEMO.CanvasRenderer(document.querySelector('canvas')),
+      gameWorld = new DEMO.GameWorld({ renderer: renderer });
+
+  gameWorld.createTileMap([
+    [1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1]
+  ]);
+
+  gameWorld.createEntity(40, 50, 120, 100)
+    .setCollider(100, 100)
+    .addScript(function(){
+      var that = this;
+      setTimeout(function(){
+        that.moveTo(250, 200);
+      }, 500);
+    });
+
+})();
+  </script>
 </body>
 </html>

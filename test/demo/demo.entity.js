@@ -1,8 +1,11 @@
-DEMO.Entity = function(x, y, z) {
+DEMO.Entity = function(gameWorld, x, y, z) {
+  // world reference used for components
+  this._gameWorld = gameWorld;
+
   this._position = {
-    _x: x,
-    _y: y,
-    _z: z
+    _x: x || 0,
+    _y: y || 0,
+    _z: z || 0
   };
 
   this._scripts = [];
@@ -14,6 +17,7 @@ DEMO.Entity.prototype = {
         y = this._position._y;
 
     this._collider = new AXIS.Collider(x, y, width, height);
+    this._gameWorld._collisionManager.addCollider(this._collider);
 
     return this;
   },

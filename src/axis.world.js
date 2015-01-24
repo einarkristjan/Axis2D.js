@@ -34,66 +34,50 @@ AXIS.World.prototype = {
   },
   _tileCollision: function(collider, verticalCheck) {
     verticalCheck = verticalCheck || false;
-    var xJump, yJump, xLeft, xRight, yTop, yBottom,
+    var jump, xLeft, xRight, yTop, yBottom, end,
         width = collider._width,
         height = collider._height,
         nextPosX = collider._nextPosition._x,
         nextPosY = collider._nextPosition._y,
-        velX = collider._velocity._x,
-        velY = collider._velocity._y,
         cellSize = this._cellSize,
         tiles = this._tiles;
 
     // horizontal
-    yJump = AXIS.toInt(nextPosY / cellSize);
+    jump = AXIS.toInt(nextPosY / cellSize);
     xLeft = AXIS.toInt(nextPosX / cellSize);
     xRight = AXIS.toInt((nextPosX + width) / cellSize);
+    end = AXIS.toInt((nextPosY + height) / cellSize);
 
     for(;;) {
-      if(velX < 0) {
-        // trying to move left
-        if(tiles[yJump][xLeft]) {
-          console.log('hit-left');
-        }
+      if(tiles[jump][xLeft]) {
+        console.log('hit-left');
       }
-      else if(velX > 0) {
-        // trying to move right
-        if(tiles[yJump][xRight]) {
-          console.log('hit-right');
-        }
+      if(tiles[jump][xRight]) {
+        console.log('hit-right');
       }
-
-      if(yJump === AXIS.toInt((nextPosY + height) / cellSize)) {
+      if(jump === end) {
         break;
       }
-
-      yJump++;
+      jump++;
     }
 
     // vertical
-    xJump = AXIS.toInt(nextPosX / cellSize);
+    jump = AXIS.toInt(nextPosX / cellSize);
     yTop = AXIS.toInt(nextPosY / cellSize);
     yBottom = AXIS.toInt((nextPosY + height) / cellSize);
+    end = AXIS.toInt((nextPosX + width) / cellSize);
 
     for(;;) {
-      if(velY < 0) {
-        // trying to move up
-        if (tiles[yTop][xJump]) {
-          console.log('hit-up');
-        }
+      if (tiles[yTop][jump]) {
+        console.log('hit-up');
       }
-      else if(velY > 0) {
-        // trying to move down
-        if (tiles[yBottom][xJump]) {
-          console.log('hit-down');
-        }
+      if (tiles[yBottom][jump]) {
+        console.log('hit-down');
       }
-
-      if(xJump === AXIS.toInt((nextPosX + width) / cellSize)) {
+      if(jump === end) {
         break;
       }
-
-      xJump++;
+      jump++;
     }
   }
 };

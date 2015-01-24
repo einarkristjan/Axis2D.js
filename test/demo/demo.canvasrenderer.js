@@ -21,14 +21,16 @@ DEMO.CanvasRenderer.prototype = {
     this._canvas.height = height;
   },
   scale: function(width, height) {
-    var windowRatio = window.innerWidth / window.innerHeight,
+    var canvas = this._canvas,
+        winWidth = window.innerWidth,
+        winHeight = window.innerHeight,
+        windowRatio = winWidth / winHeight,
         canvasRatio = width / height,
         newRatio = windowRatio - canvasRatio,
-        canvas = this._canvas;
+        widthCalc = winHeight / canvas.height * canvas.width,
+        heightCalc = winWidth / canvas.width * canvas.height;
 
-    this.resize(width, height);
-
-    canvas.style.width = newRatio <= 0 ? window.innerWidth+'px' : 'auto';
-    canvas.style.height = newRatio > 0 ? window.innerHeight+'px' : 'auto';
+    canvas.style.width = newRatio <= 0 ? winWidth+'px' : widthCalc+'px';
+    canvas.style.height = newRatio > 0 ? winHeight+'px' : heightCalc+'px';
   }
 };
