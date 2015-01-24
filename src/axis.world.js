@@ -1,53 +1,62 @@
 AXIS.World = function(cellSize) {
-  cellSize = cellSize || 32;
-  var bodies = [],
-      tiles = [];
+  this._cellSize = cellSize || 32;
+  this._colliders = [];
+  this._tiles = [];
+};
 
-  this.addTiles = function(array) {
-    tiles = array;
-  };
-
-  this.add = function(body) {
-    bodies.push(body);
-  };
-
-  this.remove = function(body) {
-    var index = bodies.indexOf(body);
+AXIS.World.prototype = {
+  addTiles: function(array) {
+    this._tiles = array;
+  },
+  addCollider: function(collider) {
+    this._colliders.push(collider);
+  },
+  removeCollider: function(body) {
+    var index = this._colliders.indexOf(body);
     if(index > -1) {
-      bodies.splice(index, 1);
+      this._colliders.splice(index, 1);
     }
-  };
+  },
+  update: function() {
+    var i, coll, vel,
+        colliders = this._colliders;
 
-  this.update = function() {
-    var i, b, vel;
-    for(i = 0; i < bodies.length; i++) {
-      b = bodies[i];
-      vel = b.getVelocity();
+    for(i = 0; i < colliders.length; i++) {
+      coll = colliders[i];
+      vel = coll._velocity;
 
-      if(vel.x || vel.y) {
-        tileCollision(b);
+      if(vel._x || vel._y) {
+        this._tileCollision(coll);
+
+        coll.setNewPosition();
       }
     }
-  };
-
-  function tileCollision(body, verticalCheck) {
+  },
+  _tileCollision: function(collider, verticalCheck) {
     verticalCheck = verticalCheck || false;
     var x1, x2, y1, y2, part,
-        AABB = body.getAABB(),
-        velocity = body.getVelocity(),
-        nextPosX = AABB.x + velocity.x,
-        nextPosY = AABB.y + velocity.y;
+        width = collider._width,
+        height = collider._height,
+        posX = collider._position._x,
+        posY = collider._position._y,
+        nextPosX = collider._nextPosition._x,
+        nextPosY = collider._nextPosition._y,
+        velX = collider._velocity._x,
+        velY = collider._velocity._y,
+        cellSize = this._cellSize,
+        tiles = this._tiles;
 
     // horizontal
-    part = AABB.height > cellSize ? cellSize : AABB.height;
+    part = height > cellSize ? cellSize : height;
 
-    y1 = AXIS.toInt(AABB.y / cellSize);
+    y1 = AXIS.toInt(posY / cellSize);
 
     for(;;) {
-      y2 = AXIS.toInt((AABB.y+part-1) / cellSize);
+      y2 = AXIS.toInt((posY + part - 1) / cellSize);
 
-      if(velocity.x < 0) {
+      if(velX < 0) {
         x1 = AXIS.toInt(nextPosX / cellSize);
+
         // trying to move left
         if(tiles[y1][x1] || tiles[y2][x1]) {
           // place the body as close to the solid tile as possible
@@ -56,9 +65,12 @@ AXIS.World = function(cellSize) {
           console.log('hit-left');
         }
       }
-      else if(velocity.x > 0) {
-        x2 = AXIS.toInt((nextPosX+AABB.width-1) / cellSize);
+      else if(velX > 0) {
+        x2 = AXIS.toInt((nextPosX + width - 1) / cellSize);
         // trying to move right
+
+        console.log('tiles['+y1+']['+x2+'] || tiles['+y2+']['+x2+']');
+
         if(tiles[y1][x2] || tiles[y2][x2]) {
           // Place the body as close to the solid tile as possible
           /* entity.position.x = x2 * cellSize;
@@ -68,28 +80,29 @@ AXIS.World = function(cellSize) {
         }
       }
 
-      if(part === AABB.height) {
+      if(part === height) {
         break;
       }
 
       part += cellSize;
 
-      if(part > AABB.height) {
-        part = AABB.height;
+      if(part > height) {
+        part = height;
       }
     }
 
     // vertical
-    part = AABB.width > cellSize ? cellSize : AABB.width;
+    part = width > cellSize ? cellSize : width;
 
-    x1 = AXIS.toInt(AABB.x / cellSize);
+    x1 = AXIS.toInt(posX / cellSize);
 
     for(;;) {
-      x2 = AXIS.toInt((AABB.x+part-1) / cellSize);
+      x2 = AXIS.toInt((posX + part - 1) / cellSize);
 
-      if(velocity.y < 0) {
+      if(velY < 0) {
         y1 = AXIS.toInt(nextPosY / cellSize);
-        // trying to move down
+
+        // trying to move up
         if (tiles[y1][x1] || tiles[y1][x2]) {
           // place the body as close to the solid tile as possible
           /* entity.position.y = (y1 + 1) * cellSize;
@@ -97,9 +110,12 @@ AXIS.World = function(cellSize) {
           console.log('hit-down');
         }
       }
-      else if(velocity.y > 0) {
-        y2 = AXIS.toInt((nextPosY+AABB.height-1) / cellSize);
-        // trying to move up
+      else if(velY > 0) {
+        y2 = AXIS.toInt((nextPosY + height - 1) / cellSize);
+
+        console.log('tiles['+y2+']['+x1+'] || tiles['+y2+']['+x2+']');
+
+        // trying to move down
         if (tiles[y2][x1] || tiles[y2][x2]) {
           // place the body as close to the solid tile as possible
           /* entity.position.y = y2 * cellSize;
@@ -109,14 +125,14 @@ AXIS.World = function(cellSize) {
         }
       }
 
-      if(part === AABB.width) {
+      if(part === width) {
         break;
       }
 
       part += cellSize;
 
-      if(part > AABB.width) {
-        part = AABB.width;
+      if(part > width) {
+        part = width;
       }
     }
   }

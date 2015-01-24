@@ -1,0 +1,10 @@
+{
+  "camelcase": true,
+  "curly": true,
+  "eqeqeq": true,
+  "unused": true,
+  "es5": true,
+  "freeze": true,
+  "nonbsp": true,
+  "quotmark": "single"
+}
