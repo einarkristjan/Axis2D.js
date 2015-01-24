@@ -32,5 +32,6 @@ DEMO.EntityManager.prototype = {
   },
   addEntity: function(entity) {
     this._entities.push(entity);
+    return entity;
   }
 };

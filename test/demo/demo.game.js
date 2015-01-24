@@ -3,13 +3,16 @@ DEMO.Game = function(params) {
 
   params = params || {};
 
-  this._mapManager = params.mapManager || new DEMO.TileManager(64);
   this._width = params.width || 768;
   this._height = params.height || 576;
   this._renderer = params.renderer;
+  this._cellSize = params.cellSize || 64;
 
-  this._colliderWorld = new AXIS.World(64);
+  this._colliderWorld = new AXIS.World(this._cellSize);
+  this._tileManager = new DEMO.TileManager(this._cellSize);
   this._entityManager = new DEMO.EntityManager();
+
+  this._frameCount = 0;
 
   if(!this._renderer) {
     // create default renderer
@@ -45,13 +48,18 @@ DEMO.Game.prototype = {
   update: function() {
     this._colliderWorld.update();
     this._entityManager.update();
+    this._frameCount++;
   },
   draw: function() {
     this._renderer.clear(this._width, this._height);
-    this._mapManager.draw(this._renderer);
+    this._tileManager.draw(this._renderer);
     this._entityManager.draw(this._renderer);
   },
   onWindowResize: function() {
     this._renderer.scale(this._width, this._height);
+  },
+  createEntity: function(x, y, z) {
+    var entity = new DEMO.Entity(x, y, z);
+    return this._entityManager.addEntity(entity);
   }
 };

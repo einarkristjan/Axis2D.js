@@ -26,7 +26,7 @@ DEMO.init = function() {
     .addScript(function(){
       var that = this;
       setTimeout(function(){
-        that.moveTo(200, 200);
+        that.moveTo(250, 200);
       }, 500);
     });
 
@@ -37,6 +37,6 @@ DEMO.init = function() {
   game._colliderWorld.addTiles(map);
 
   game._entityManager.addEntity(ent);
-  game._mapManager.addTiles(map);
+  game._tileManager.addTiles(map);
 
 };
