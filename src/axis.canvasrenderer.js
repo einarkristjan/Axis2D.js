@@ -1,9 +1,11 @@
-DEMO.CanvasRenderer = function(canvas) {
+AXIS.CanvasRenderer = function(canvas, width, height) {
   this._canvas = canvas;
   this._ctx = canvas.getContext('2d');
+
+  this.resize(width, height);
 };
 
-DEMO.CanvasRenderer.prototype = {
+AXIS.CanvasRenderer.prototype = {
   clear: function(width, height) {
     this._ctx.clearRect(0, 0, width, height);
   },
@@ -20,17 +22,17 @@ DEMO.CanvasRenderer.prototype = {
     this._canvas.width = width;
     this._canvas.height = height;
   },
-  scale: function(width, height) {
+  scaleTo: function(windowWidth, windowHeight) {
     var canvas = this._canvas,
-        winWidth = window.innerWidth,
-        winHeight = window.innerHeight,
-        windowRatio = winWidth / winHeight,
-        canvasRatio = width / height,
+        cw = canvas.width,
+        ch = canvas.height,
+        windowRatio = windowWidth / windowHeight,
+        canvasRatio = cw / ch,
         newRatio = windowRatio - canvasRatio,
-        widthCalc = winHeight / canvas.height * canvas.width,
-        heightCalc = winWidth / canvas.width * canvas.height;
+        widthCalc = windowHeight / ch * cw,
+        heightCalc = windowWidth / cw * ch;
 
-    canvas.style.width = newRatio <= 0 ? winWidth+'px' : widthCalc+'px';
-    canvas.style.height = newRatio > 0 ? winHeight+'px' : heightCalc+'px';
+    canvas.style.width = newRatio <= 0 ? windowWidth+'px' : widthCalc+'px';
+    canvas.style.height = newRatio > 0 ? windowHeight+'px' : heightCalc+'px';
   }
 };

@@ -1,4 +1,4 @@
-AXIS.Collider = function(x, y, width, height) {
+AXIS.Entity.Collider = function(x, y, width, height) {
   this._width = width;
   this._height = height;
 
@@ -18,7 +18,7 @@ AXIS.Collider = function(x, y, width, height) {
   };
 };
 
-AXIS.Collider.prototype = {
+AXIS.Entity.Collider.prototype = {
   moveTo: function(x, y) {
     this._nextPosition._x = x;
     this._nextPosition._y = y;

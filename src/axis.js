@@ -1,7 +1,8 @@
-var AXIS = {};
+// namespace - "new function" for naming the object
+var AXIS = AXIS || new function AXIS(){};
 
 //------------------------------------------------------------------------------
-// utils
+// utils / helpers
 
 AXIS.toInt = function(number) {
   return parseInt(number, 10);

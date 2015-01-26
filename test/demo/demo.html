@@ -49,25 +49,46 @@
   </script>
 
   <script src="../../src/axis.js"></script>
-  <script src="../../src/axis.world.js"></script>
-  <script src="../../src/axis.collider.js"></script>
-
-  <script src="demo.js"></script>
-  <script src="demo.gameworld.js"></script>
-  <script src="demo.entitymanager.js"></script>
-  <script src="demo.canvasrenderer.js"></script>
-  <script src="demo.tilemanager.js"></script>
-  <script src="demo.entity.js"></script>
+  <script src="../../src/axis.gameworld.js"></script>
+  <script src="../../src/axis.canvasrenderer.js"></script>
+  <script src="../../src/axis.entitymanager.js"></script>
+  <script src="../../src/axis.entity.js"></script>
+  <script src="../../src/axis.entity.collider.js"></script>
+  <script src="../../src/axis.collisionmanager.js"></script>
+  <script src="../../src/axis.collisionmap.js"></script>
 
   <script>
+
 (function(){
+  // paul irish shim
+  var requestAnimFrame = (function(){
+    return  window.requestAnimationFrame       ||
+            window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame    ||
+            function( callback ){
+              window.setTimeout(callback, 1000 / 60);
+            };
+  })();
 
-  console.log(DEMO);
+  var width = 768,
+      height = 576,
+      canvas = document.querySelector('canvas'),
+      renderer = new AXIS.CanvasRenderer(canvas, width, height),
+      gameWorld = new AXIS.GameWorld({
+        renderer: renderer,
+        debug: true
+      });
 
-  var renderer = new DEMO.CanvasRenderer(document.querySelector('canvas')),
-      gameWorld = new DEMO.GameWorld({ renderer: renderer });
+  function onWindowResize() {
+    renderer.scaleTo(window.innerWidth, window.innerHeight);
+  }
 
-  gameWorld.createTileMap([
+  window.addEventListener('resize', onWindowResize);
+
+  // first run
+  onWindowResize();
+
+  new AXIS.CollisionMap(gameWorld, [
     [1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
@@ -79,7 +100,7 @@
     [1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1]
   ]);
 
-  gameWorld.createEntity(40, 50, 120, 100)
+  new AXIS.Entity(gameWorld, 40, 50, 0)
     .setCollider(100, 100)
     .addScript(function(){
       var that = this;
@@ -88,7 +109,15 @@
       }, 500);
     });
 
+  (function loop() {
+    requestAnimFrame(loop);
+    renderer.clear(width, height);
+    gameWorld.update();
+    gameWorld.draw();
+  })();
+
 })();
+
   </script>
 </body>
 </html>
