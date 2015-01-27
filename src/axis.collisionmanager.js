@@ -1,8 +1,11 @@
 AXIS.CollisionManager = function(cellSize) {
-  this._cellSize = cellSize;
-
+  // private
+  this._grid = [];
   this._colliders = [];
   this._collisionMaps = [];
+  this._cellSize = cellSize;
+
+  this.setCellSize(cellSize || 64);
 };
 
 AXIS.CollisionManager.prototype = {
@@ -14,12 +17,19 @@ AXIS.CollisionManager.prototype = {
       coll = colliders[i];
       vel = coll._velocity;
 
-      if(vel._x || vel._y) {
+      if(vel.x || vel.y) {
         this._tileCollision(coll);
 
-        coll.setNewPosition();
+        // TODO: resolve collisions before setting new position
+        coll.setNewPosition(coll._nextPosition.x, coll._nextPosition.y);
       }
     }
+  },
+  setCellSize: function(cellSize) {
+    this._cellSize = cellSize;
+
+    // move colliders inside grid
+    this._grid = [];
   },
   debugDraw: function(renderer) {
     this._debugDrawCollisionMaps(renderer);
@@ -47,11 +57,11 @@ AXIS.CollisionManager.prototype = {
     var i, e, x, y, w, h;
     for(i = 0; i < this._colliders.length; i++) {
       e = this._colliders[i];
-      x = e._position._x;
-      y = e._position._y;
+      x = e._position.x;
+      y = e._position.y;
 
-      w = e._width;
-      h = e._height;
+      w = e.width;
+      h = e.height;
 
       renderer.drawRect(x, y, w, h, '255, 0, 255');
     }
@@ -71,10 +81,10 @@ AXIS.CollisionManager.prototype = {
   _tileCollision: function(collider) {
     for(var i = 0; i < this._collisionMaps.length; i++) {
       var jump, xLeft, xRight, yTop, yBottom, end,
-          width = collider._width,
-          height = collider._height,
-          nextPosX = collider._nextPosition._x,
-          nextPosY = collider._nextPosition._y,
+          width = collider.width,
+          height = collider.height,
+          nextPosX = collider._nextPosition.x,
+          nextPosY = collider._nextPosition.y,
           cellSize = this._cellSize,
           tiles = this._collisionMaps[i];
 
@@ -85,10 +95,10 @@ AXIS.CollisionManager.prototype = {
       end = AXIS.toInt((nextPosY + height) / cellSize);
 
       for(;;) {
-        if(tiles[jump][xLeft]) {
+        if(tiles[jump] && tiles[jump][xLeft]) {
           console.log('hit-left');
         }
-        if(tiles[jump][xRight]) {
+        if(tiles[jump] && tiles[jump][xRight]) {
           console.log('hit-right');
         }
         if(jump === end) {
@@ -104,10 +114,10 @@ AXIS.CollisionManager.prototype = {
       end = AXIS.toInt((nextPosX + width) / cellSize);
 
       for(;;) {
-        if (tiles[yTop][jump]) {
+        if(tiles[yTop] && tiles[yTop][jump]) {
           console.log('hit-up');
         }
-        if (tiles[yBottom][jump]) {
+        if(tiles[yBottom] && tiles[yBottom][jump]) {
           console.log('hit-down');
         }
         if(jump === end) {

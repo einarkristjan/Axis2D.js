@@ -1,40 +1,27 @@
 AXIS.Entity.Collider = function(x, y, width, height) {
-  this._width = width;
-  this._height = height;
+  // public
+  this.width = width;
+  this.height = height;
 
-  this._position = {
-    _x: x,
-    _y: y
-  };
-
-  this._nextPosition = {
-    _x: x,
-    _y: y
-  };
-
-  this._velocity = {
-    _x: 0,
-    _y: 0
-  };
+  // private
+  this._position = new AXIS.Vector2(x, y);
+  this._nextPosition = new AXIS.Vector2(x, y);
+  this._velocity = new AXIS.Vector2(0, 0);
 };
 
 AXIS.Entity.Collider.prototype = {
   moveTo: function(x, y) {
-    this._nextPosition._x = x;
-    this._nextPosition._y = y;
+    this._nextPosition.x = x;
+    this._nextPosition.y = y;
 
-    this._velocity._x = x - this._position._x;
-    this._velocity._y = y - this._position._y;
+    this._velocity.x = x - this._position.x;
+    this._velocity.y = y - this._position.y;
   },
-  resize: function(width, height) {
-    this._width = width;
-    this._height = height;
-  },
-  setNewPosition: function() {
-    this._position._x = this._nextPosition._x;
-    this._position._y = this._nextPosition._y;
+  setNewPosition: function(x, y) {
+    this._position.x = x;
+    this._position.y = y;
 
-    this._velocity._x = 0;
-    this._velocity._y = 0;
+    this._velocity.x = 0;
+    this._velocity.y = 0;
   }
 };

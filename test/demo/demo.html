@@ -49,13 +49,14 @@
   </script>
 
   <script src="../../src/axis.js"></script>
-  <script src="../../src/axis.gameworld.js"></script>
+  <script src="../../src/axis.world.js"></script>
   <script src="../../src/axis.canvasrenderer.js"></script>
   <script src="../../src/axis.entitymanager.js"></script>
   <script src="../../src/axis.entity.js"></script>
   <script src="../../src/axis.entity.collider.js"></script>
   <script src="../../src/axis.collisionmanager.js"></script>
   <script src="../../src/axis.collisionmap.js"></script>
+  <script src="../../src/axis.vector2.js"></script>
 
   <script>
 
@@ -74,7 +75,7 @@
       height = 576,
       canvas = document.querySelector('canvas'),
       renderer = new AXIS.CanvasRenderer(canvas, width, height),
-      gameWorld = new AXIS.GameWorld({
+      gameWorld = new AXIS.World({
         renderer: renderer,
         debug: true
       });

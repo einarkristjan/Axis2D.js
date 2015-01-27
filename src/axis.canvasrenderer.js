@@ -1,4 +1,5 @@
 AXIS.CanvasRenderer = function(canvas, width, height) {
+  //private
   this._canvas = canvas;
   this._ctx = canvas.getContext('2d');
 
