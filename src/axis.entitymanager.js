@@ -1,5 +1,4 @@
 AXIS.EntityManager = function() {
-  // # private
   this._entities = [];
 };
 
@@ -13,8 +12,7 @@ AXIS.EntityManager.prototype = {
       collider = comps.collider;
 
       if(collider) {
-        // set entity pos the same as collider pos?
-        e.setPosition(collider._position.x, collider._position.y);
+
       }
 
       if(scripts.length) {
@@ -34,9 +32,9 @@ AXIS.EntityManager.prototype = {
       e = this._entities[i];
       x = e._position.x;
       y = e._position.y;
-      renderer.setColor(255, 255, 255, 0.5);
+      renderer.setColor(200, 200, 200, 0.5);
       renderer.fillCircle(x, y, cellSize / 8);
-      renderer.setColor(255, 255, 255);
+      renderer.setColor(200, 200, 200);
       renderer.strokeCircle(x, y, cellSize / 8);
     }
   }

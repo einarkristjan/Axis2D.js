@@ -1,5 +1,4 @@
 AXIS.CanvasRenderer = function(canvas, width, height) {
-  // # private
   this._canvas = canvas;
   this._ctx = canvas.getContext('2d');
   this._width = width;
@@ -10,7 +9,7 @@ AXIS.CanvasRenderer = function(canvas, width, height) {
 
 AXIS.CanvasRenderer.prototype = {
   clear: function() {
-    this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
+    this._ctx.clearRect(0, 0, this._width, this._height);
   },
   setColor: function(red, green, blue, alpha) {
     alpha = alpha || 1.0;

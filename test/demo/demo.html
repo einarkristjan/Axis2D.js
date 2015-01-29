@@ -17,20 +17,11 @@
     body {
       display: table-cell;
 
-      width: 100%;
-      height: 100%;
-
       vertical-align: middle;
       text-align: center;
 
       overflow: hidden;
     }
-
-    canvas {
-      background: #000;
-      color: #fff;
-    }
-
   </style>
 
 </head>
@@ -41,7 +32,6 @@
     (function(){
       var canvas = document.querySelector('canvas'),
           ctx = canvas.getContext('2d');
-      ctx.fillStyle = '#fff';
       ctx.textAlign = 'center';
       ctx.fillText('Loading...', canvas.width/2, canvas.height/2);
     })();
@@ -65,7 +55,7 @@
             window.webkitRequestAnimationFrame ||
             window.mozRequestAnimationFrame    ||
             function( callback ){
-              window.setTimeout(callback, 1000 / 60);
+              setTimeout(callback, 1000 / 60);
             };
   })();
 
@@ -101,19 +91,23 @@
     ]);
 
   axisWorld
-    .createEntity(100, 100, 0)
+    .createEntity(123, 121, 0)
       .setCollider(100, 100)
-      .addScript(function(){
-        var that = this;
-        setTimeout(function(){
-          that.moveTo(250, 200);
-        }, 500);
+      .addScript(function(world) {
+        if(world._frameCount === 50) {
+          this.moveTo(250, 200);
+        }
       });
 
   (function loop() {
     requestAnimFrame(loop);
-    renderer.clear();
+
     axisWorld.update();
+
+    // draw background
+    renderer.setColor(0, 0, 0);
+    renderer.fillRect(0, 0, width, height);
+
     axisWorld.draw();
   })();
 

@@ -1,5 +1,4 @@
 AXIS.CollisionManager = function(cellSize) {
-  // # private
   this._grid = [];
   this._colliders = [];
   this._collisionMaps = [];
@@ -10,19 +9,26 @@ AXIS.CollisionManager = function(cellSize) {
 
 AXIS.CollisionManager.prototype = {
   update: function() {
-    var i, coll, vel,
+    var i, coll, velX, velY,
         colliders = this._colliders;
 
+    // first pass - collision detection
     for(i = 0; i < colliders.length; i++) {
       coll = colliders[i];
-      vel = coll._velocity;
+      velX = coll._entity._position.x - coll._nextPosition.x;
+      velY = coll._entity._position.y - coll._nextPosition.y;
 
-      if(vel.x || vel.y) {
+      if(velX || velY) {
         this._tileCollision(coll);
-
-        // TODO: resolve collisions before setting new position
-        coll.setNewPosition(coll._nextPosition.x, coll._nextPosition.y);
       }
+    }
+
+    // second pass - resolve collisions
+    for(i = 0; i < colliders.length; i++) {
+      coll = colliders[i];
+
+      // TODO: resolve collisions before setting new position
+      coll._entity.setPosition(coll._nextPosition.x, coll._nextPosition.y);
     }
   },
   setCellSize: function(cellSize) {
@@ -70,14 +76,15 @@ AXIS.CollisionManager.prototype = {
     }
   },
   _debugDrawColliders: function(renderer) {
-    var i, e, x, y, w, h;
+    var i, c, x, y, w, h;
     for(i = 0; i < this._colliders.length; i++) {
-      e = this._colliders[i];
-      x = e._position.x;
-      y = e._position.y;
+      c = this._colliders[i];
 
-      w = e.width;
-      h = e.height;
+      x = c._entity._position.x;
+      y = c._entity._position.y;
+
+      w = c.width;
+      h = c.height;
 
       renderer.setColor(0, 255, 0, 0.3);
       renderer.fillRect(x, y, w, h);
