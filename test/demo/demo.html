@@ -45,7 +45,6 @@
       ctx.textAlign = 'center';
       ctx.fillText('Loading...', canvas.width/2, canvas.height/2);
     })();
-
   </script>
 
   <script src="../../src/axis.js"></script>
@@ -59,7 +58,6 @@
   <script src="../../src/axis.vector2.js"></script>
 
   <script>
-
 (function(){
   // paul irish shim
   var requestAnimFrame = (function(){
@@ -75,7 +73,7 @@
       height = 576,
       canvas = document.querySelector('canvas'),
       renderer = new AXIS.CanvasRenderer(canvas, width, height),
-      gameWorld = new AXIS.World({
+      axisWorld = new AXIS.World({
         renderer: renderer,
         debug: true
       });
@@ -89,36 +87,37 @@
   // first run
   onWindowResize();
 
-  new AXIS.CollisionMap(gameWorld, [
-    [1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1]
-  ]);
+  axisWorld
+    .createCollisionMap([
+      [1,1,1,1,0,0,0,0,1,1,1,1],
+      [1,0,0,0,0,0,0,0,0,0,0,1],
+      [1,0,0,0,0,0,0,0,0,0,0,1],
+      [0,0,0,0,0,1,1,0,0,0,0,0],
+      [0,0,0,0,1,1,1,1,0,0,0,0],
+      [0,0,0,0,0,1,1,0,0,0,0,0],
+      [1,0,0,0,0,0,0,0,0,0,0,1],
+      [1,0,0,0,0,0,0,0,0,0,0,1],
+      [1,1,1,1,0,0,0,0,1,1,1,1]
+    ]);
 
-  new AXIS.Entity(gameWorld, 40, 50, 0)
-    .setCollider(100, 100)
-    .addScript(function(){
-      var that = this;
-      setTimeout(function(){
-        that.moveTo(250, 200);
-      }, 500);
-    });
+  axisWorld
+    .createEntity(100, 100, 0)
+      .setCollider(100, 100)
+      .addScript(function(){
+        var that = this;
+        setTimeout(function(){
+          that.moveTo(250, 200);
+        }, 500);
+      });
 
   (function loop() {
     requestAnimFrame(loop);
-    renderer.clear(width, height);
-    gameWorld.update();
-    gameWorld.draw();
+    renderer.clear();
+    axisWorld.update();
+    axisWorld.draw();
   })();
 
 })();
-
   </script>
 </body>
 </html>

@@ -1,6 +1,6 @@
-AXIS.CollisionMap = function(gameWorld, map) {
+AXIS.CollisionMap = function(map, world) {
+  world.collisionManager.addCollisionMap(map);
 
-  gameWorld.collisionManager.addCollisionMap(map);
 };
 
 AXIS.CollisionMap.prototype = {

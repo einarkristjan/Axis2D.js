@@ -1,5 +1,5 @@
 AXIS.CollisionManager = function(cellSize) {
-  // private
+  // # private
   this._grid = [];
   this._colliders = [];
   this._collisionMaps = [];
@@ -31,6 +31,18 @@ AXIS.CollisionManager.prototype = {
     // move colliders inside grid
     this._grid = [];
   },
+  addCollisionMap: function(collisionMap) {
+    this._collisionMaps.push(collisionMap);
+  },
+  addCollider: function(collider) {
+    this._colliders.push(collider);
+  },
+  removeCollider: function(body) {
+    var index = this._colliders.indexOf(body);
+    if(index > -1) {
+      this._colliders.splice(index, 1);
+    }
+  },
   debugDraw: function(renderer) {
     this._debugDrawCollisionMaps(renderer);
     this._debugDrawColliders(renderer);
@@ -47,7 +59,11 @@ AXIS.CollisionManager.prototype = {
         for(j = 0; j < row.length; j++) {
           cell = row[j];
           if(cell) {
-            renderer.drawRect(j*cs, i*cs, cs, cs, '0, 255, 0');
+            renderer.setColor(255, 0, 0, 0.3);
+            renderer.fillRect(j*cs, i*cs, cs, cs);
+
+            renderer.setColor(255, 0, 0);
+            renderer.strokeRect(j*cs, i*cs, cs, cs);
           }
         }
       }
@@ -63,19 +79,11 @@ AXIS.CollisionManager.prototype = {
       w = e.width;
       h = e.height;
 
-      renderer.drawRect(x, y, w, h, '255, 0, 255');
-    }
-  },
-  addCollisionMap: function(collisionMap) {
-    this._collisionMaps.push(collisionMap);
-  },
-  addCollider: function(collider) {
-    this._colliders.push(collider);
-  },
-  removeCollider: function(body) {
-    var index = this._colliders.indexOf(body);
-    if(index > -1) {
-      this._colliders.splice(index, 1);
+      renderer.setColor(0, 255, 0, 0.3);
+      renderer.fillRect(x, y, w, h);
+
+      renderer.setColor(0, 255, 0);
+      renderer.strokeRect(x, y, w, h);
     }
   },
   _tileCollision: function(collider) {

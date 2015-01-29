@@ -1,25 +1,46 @@
 AXIS.CanvasRenderer = function(canvas, width, height) {
-  //private
+  // # private
   this._canvas = canvas;
   this._ctx = canvas.getContext('2d');
+  this._width = width;
+  this._height = height;
 
   this.resize(width, height);
 };
 
 AXIS.CanvasRenderer.prototype = {
-  clear: function(width, height) {
-    this._ctx.clearRect(0, 0, width, height);
+  clear: function() {
+    this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
   },
-  drawRect: function(x, y, width, height, color) {
+  setColor: function(red, green, blue, alpha) {
+    alpha = alpha || 1.0;
+    var rgba = 'rgba('+red+','+green+','+blue+','+alpha+')';
+    this._ctx.fillStyle = rgba;
+    this._ctx.strokeStyle = rgba;
+  },
+  fillRect: function(x, y, width, height) {
+    this._ctx.fillRect(x, y, width, height);
+  },
+  strokeRect: function(x, y, width, height) {
+    this._ctx.strokeRect(x, y, width, height);
+  },
+  fillCircle: function(x, y, radius) {
     var ctx = this._ctx;
-
-    ctx.fillStyle = 'rgba('+color+', 0.3)';
-    ctx.strokeStyle = 'rgb('+color+')';
-
-    ctx.fillRect(x, y, width, height);
-    ctx.strokeRect(x, y, width, height);
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, 2*Math.PI, false);
+    ctx.fill();
+    ctx.closePath();
+  },
+  strokeCircle: function(x, y, radius) {
+    var ctx = this._ctx;
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, 2*Math.PI, false);
+    ctx.stroke();
+    ctx.closePath();
   },
   resize: function(width, height) {
+    this._width = width;
+    this._height = height;
     this._canvas.width = width;
     this._canvas.height = height;
   },
@@ -27,8 +48,8 @@ AXIS.CanvasRenderer.prototype = {
     var canvas = this._canvas,
         cw = canvas.width,
         ch = canvas.height,
-        windowRatio = windowWidth / windowHeight,
         canvasRatio = cw / ch,
+        windowRatio = windowWidth / windowHeight,
         newRatio = windowRatio - canvasRatio,
         widthCalc = windowHeight / ch * cw,
         heightCalc = windowWidth / cw * ch;

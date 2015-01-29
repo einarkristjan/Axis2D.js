@@ -1,9 +1,9 @@
 AXIS.Entity.Collider = function(x, y, width, height) {
-  // public
+  // # public
   this.width = width;
   this.height = height;
 
-  // private
+  // # private
   this._position = new AXIS.Vector2(x, y);
   this._nextPosition = new AXIS.Vector2(x, y);
   this._velocity = new AXIS.Vector2(0, 0);
