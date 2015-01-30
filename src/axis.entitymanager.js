@@ -3,7 +3,7 @@ AXIS.EntityManager = function() {
 };
 
 AXIS.EntityManager.prototype = {
-  update: function(world) {
+  update: function() {
     var i, j, e, s, comps, scripts, collider;
     for(i = 0; i < this._entities.length; i++) {
       e = this._entities[i];
@@ -12,13 +12,14 @@ AXIS.EntityManager.prototype = {
       collider = comps.collider;
 
       if(collider) {
-
+        // collisions solved so fix pos
+        e.setPosition(collider._newPosition.x, collider._newPosition.y);
       }
 
       if(scripts.length) {
         for(j = 0; j < scripts.length; j++) {
           s = scripts[j];
-          s.call(e, world);
+          s.script.call(e, s.vars);
         }
       }
     }

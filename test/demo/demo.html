@@ -91,13 +91,21 @@
     ]);
 
   axisWorld
-    .createEntity(123, 121, 0)
+    .createEntity(123, 121)
       .setCollider(100, 100)
-      .addScript(function(world) {
-        if(world._frameCount === 50) {
-          this.moveTo(250, 200);
-        }
-      });
+      .addScript(
+        {
+          foo: true,
+          bar: function() {
+            return this.foo;
+          }
+        },
+        function(vars) {
+          if(this.world._frameCount === 50) {
+            this.moveTo(250, 200);
+            console.log(vars.bar());
+          }
+        });
 
   (function loop() {
     requestAnimFrame(loop);

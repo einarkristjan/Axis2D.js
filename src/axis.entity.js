@@ -23,7 +23,6 @@ AXIS.Entity.prototype = {
 
     if(collider) {
       collider.moveTo(x, y);
-      // entity x, y will be fixed to collider inside the collision manager
     }
     else {
       setPosition(x, y);
@@ -38,8 +37,11 @@ AXIS.Entity.prototype = {
     // for chaining API
     return this;
   },
-  addScript: function(script) {
-    this.components.scripts.push(script);
+  addScript: function(vars, script) {
+    this.components.scripts.push({
+      vars: vars,
+      script: script
+    });
 
     // for chaining API
     return this;

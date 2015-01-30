@@ -20,7 +20,7 @@ AXIS.World = function(params) {
 AXIS.World.prototype = {
   update: function() {
     this.collisionManager.update();
-    this.entityManager.update(this);
+    this.entityManager.update();
     this._frameCount++;
   },
   draw: function() {
@@ -36,7 +36,7 @@ AXIS.World.prototype = {
   createEntity: function(x, y, z) {
     return new AXIS.Entity(x, y, z, this);
   },
-  createCollisionMap: function(map) {
-    return new AXIS.CollisionMap(map, this);
+  createCollisionMap: function(map, offsetX, offsetY) {
+    return new AXIS.CollisionMap(map, offsetX, offsetY, this);
   }
 };

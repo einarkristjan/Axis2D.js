@@ -1,4 +1,4 @@
-AXIS.CollisionMap = function(map, world) {
+AXIS.CollisionMap = function(map, offsetX, offsetY, world) {
   world.collisionManager.addCollisionMap(map);
 
 };

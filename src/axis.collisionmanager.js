@@ -15,8 +15,8 @@ AXIS.CollisionManager.prototype = {
     // first pass - collision detection
     for(i = 0; i < colliders.length; i++) {
       coll = colliders[i];
-      velX = coll._entity._position.x - coll._nextPosition.x;
-      velY = coll._entity._position.y - coll._nextPosition.y;
+      velX = coll._entity._position.x - coll._newPosition.x;
+      velY = coll._entity._position.y - coll._newPosition.y;
 
       if(velX || velY) {
         this._tileCollision(coll);
@@ -27,8 +27,8 @@ AXIS.CollisionManager.prototype = {
     for(i = 0; i < colliders.length; i++) {
       coll = colliders[i];
 
-      // TODO: resolve collisions before setting new position
-      coll._entity.setPosition(coll._nextPosition.x, coll._nextPosition.y);
+      // TODO: resolve collisions / pos will then be fixed in the entityManager
+      coll._entity.setPosition(coll._newPosition.x, coll._newPosition.y);
     }
   },
   setCellSize: function(cellSize) {
@@ -98,8 +98,8 @@ AXIS.CollisionManager.prototype = {
       var jump, xLeft, xRight, yTop, yBottom, end,
           width = collider.width,
           height = collider.height,
-          nextPosX = collider._nextPosition.x,
-          nextPosY = collider._nextPosition.y,
+          nextPosX = collider._newPosition.x,
+          nextPosY = collider._newPosition.y,
           cellSize = this._cellSize,
           tiles = this._collisionMaps[i];
 
