@@ -3,14 +3,11 @@ AXIS.Entity = function(x, y, zIndex, world) {
 
   this.zIndex = zIndex || 0;
 
-  this.components = {
-    collider: undefined,
-    scripts: []
-  };
-
   // world reference used for components
   this.world = world;
-  world.entityManager.addEntity(this);
+  if(world) {
+    world.entityManager.addEntity(this);
+  }
 };
 
 AXIS.Entity.prototype = {
@@ -19,7 +16,7 @@ AXIS.Entity.prototype = {
     this._position.y = y;
   },
   moveTo: function(x, y) {
-    var collider = this.components.collider;
+    var collider = this.collider;
 
     if(collider) {
       collider.moveTo(x, y);
@@ -32,16 +29,25 @@ AXIS.Entity.prototype = {
     var collider = new AXIS.Entity.Collider(width, height, this);
 
     this.world.collisionManager.addCollider(collider);
-    this.components.collider = collider;
+    this.collider = collider;
 
     // for chaining API
     return this;
   },
-  addScript: function(vars, script) {
-    this.components.scripts.push({
-      vars: vars,
-      script: script
-    });
+  addScript: function(name, vars, scriptFunction) {
+    /*
+    For the shortest reference to variables between scripts:
+    'vars' object should not be nested when added to the 'scripts' object.
+    to minimize the possibility on a key collision with the 'vars' object,
+    we need to add the 'scriptFunction' with an unique id.
+    */
+
+    if(!this.scripts) {
+      this.scripts = {};
+    }
+
+    vars['script' + this.world._uid] = scriptFunction;
+    this.scripts[name] = vars;
 
     // for chaining API
     return this;

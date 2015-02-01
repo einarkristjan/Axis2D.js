@@ -1,6 +1,7 @@
 AXIS.World = function(params) {
   params = params || {};
 
+  this._uid = new Date().getTime();
   this._frameCount = 0;
 
   this.debug = params.debug || false;

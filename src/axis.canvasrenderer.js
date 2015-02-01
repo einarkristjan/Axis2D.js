@@ -1,10 +1,11 @@
 AXIS.CanvasRenderer = function(canvas, width, height) {
-  this._canvas = canvas;
-  this._ctx = canvas.getContext('2d');
-  this._width = width;
-  this._height = height;
+  this._canvas = canvas || document.createElement('canvas');
+  this._ctx = this._canvas.getContext('2d');
+  this._width = width || this._canvas.width;
+  this._height = height || this._canvas.height;
 
-  this.resize(width, height);
+  // first run to set the canvas width and height
+  this.resize(this._width, this._height);
 };
 
 AXIS.CanvasRenderer.prototype = {

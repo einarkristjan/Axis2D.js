@@ -2,9 +2,7 @@ AXIS.CollisionManager = function(cellSize) {
   this._grid = [];
   this._colliders = [];
   this._collisionMaps = [];
-  this._cellSize = cellSize;
-
-  this.setCellSize(cellSize || 64);
+  this._cellSize = cellSize || 64;
 };
 
 AXIS.CollisionManager.prototype = {

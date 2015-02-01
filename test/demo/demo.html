@@ -94,16 +94,19 @@
     .createEntity(123, 121)
       .setCollider(100, 100)
       .addScript(
+        'playerMovement',
         {
           foo: true,
           bar: function() {
             return this.foo;
           }
         },
-        function(vars) {
-          if(this.world._frameCount === 50) {
-            this.moveTo(250, 200);
-            console.log(vars.bar());
+        function(entity) {
+          console.log(this.foo, entity.scripts.playerMovement.foo);
+
+          if(entity.world._frameCount === 50) {
+            entity.moveTo(250, 200);
+            console.log(this.bar());
           }
         });
 
