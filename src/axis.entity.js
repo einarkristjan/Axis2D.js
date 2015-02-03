@@ -5,6 +5,7 @@ AXIS.Entity = function(x, y, zIndex, world) {
 
   // world reference used for components
   this.world = world;
+
   if(world) {
     world.entityManager.addEntity(this);
   }
@@ -16,13 +17,11 @@ AXIS.Entity.prototype = {
     this._position.y = y;
   },
   moveTo: function(x, y) {
-    var collider = this.collider;
-
-    if(collider) {
-      collider.moveTo(x, y);
+    if(this.collider) {
+      this.collider.moveTo(x, y);
     }
     else {
-      setPosition(x, y);
+      this.setPosition(x, y);
     }
   },
   setCollider: function(width, height) {

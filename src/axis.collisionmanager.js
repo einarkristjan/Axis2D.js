@@ -1,44 +1,42 @@
-AXIS.CollisionManager = function(cellSize) {
-  this._grid = [];
+AXIS.CollisionManager = function(world) {
+  this._grid = {};
   this._colliders = [];
-  this._collisionMaps = [];
-  this._cellSize = cellSize || 64;
+
+  this._world = world;
 };
 
 AXIS.CollisionManager.prototype = {
-  update: function() {
-    var i, coll, velX, velY,
-        colliders = this._colliders;
+  resolve: function(collider) {
 
-    // first pass - collision detection
-    for(i = 0; i < colliders.length; i++) {
-      coll = colliders[i];
-      velX = coll._entity._position.x - coll._newPosition.x;
-      velY = coll._entity._position.y - coll._newPosition.y;
+    // TODO: resolve collisions
+    
 
-      if(velX || velY) {
-        this._tileCollision(coll);
-      }
-    }
-
-    // second pass - resolve collisions
-    for(i = 0; i < colliders.length; i++) {
-      coll = colliders[i];
-
-      // TODO: resolve collisions / pos will then be fixed in the entityManager
-      coll._entity.setPosition(coll._newPosition.x, coll._newPosition.y);
-    }
+    this._placeInGrid(collider);
   },
-  setCellSize: function(cellSize) {
-    this._cellSize = cellSize;
-
-    // move colliders inside grid
-    this._grid = [];
+  setCellSize: function() {
+    var i;
+    for(i = 0; i < this._colliders.length; i++) {
+      this._placeInGrid(this._colliders[i]);
+    }
   },
   addCollisionMap: function(collisionMap) {
+    var i, j, col, row;
+
     this._collisionMaps.push(collisionMap);
+
+    for(i = 0; i < collisionMap.length; i++) {
+      row = collisionMap[i];
+      for(j = 0; j < row.length; j++) {
+        col = row[j];
+        if(col) {
+          this._grid['y'+i+'x'+j] = col;
+        }
+      }
+    }
   },
   addCollider: function(collider) {
+    // this._placeInGrid(collider);
+
     this._colliders.push(collider);
   },
   removeCollider: function(body) {
@@ -51,93 +49,60 @@ AXIS.CollisionManager.prototype = {
     this._debugDrawCollisionMaps(renderer);
     this._debugDrawColliders(renderer);
   },
-  _debugDrawCollisionMaps: function(renderer) {
-    var i, j, row, cell, map,
-        cs = this._cellSize,
-        cmaps = this._collisionMaps;
+  _addToGrid: function(key, collider) {
+    var i,
+        needle = false;
 
-    for(c = 0; c < cmaps.length; c++) {
-      map = cmaps[c];
-      for(i = 0; i < map.length; i++) {
-        row = map[i];
-        for(j = 0; j < row.length; j++) {
-          cell = row[j];
-          if(cell) {
-            renderer.setColor(255, 0, 0, 0.3);
-            renderer.fillRect(j*cs, i*cs, cs, cs);
+    if(!this._grid[key]) {
+      this._grid[key] = [];
+    }
 
-            renderer.setColor(255, 0, 0);
-            renderer.strokeRect(j*cs, i*cs, cs, cs);
-          }
-        }
+    for(i = 0; i < this._grid[key].length; i++) {
+      if(this._grid[key][i] === collider) {
+        needle = true;
       }
     }
-  },
-  _debugDrawColliders: function(renderer) {
-    var i, c, x, y, w, h;
-    for(i = 0; i < this._colliders.length; i++) {
-      c = this._colliders[i];
 
-      x = c._entity._position.x;
-      y = c._entity._position.y;
-
-      w = c.width;
-      h = c.height;
-
-      renderer.setColor(0, 255, 0, 0.3);
-      renderer.fillRect(x, y, w, h);
-
-      renderer.setColor(0, 255, 0);
-      renderer.strokeRect(x, y, w, h);
+    if(!needle) {
+      this._grid[key].push(collider);
     }
   },
-  _tileCollision: function(collider) {
-    for(var i = 0; i < this._collisionMaps.length; i++) {
-      var jump, xLeft, xRight, yTop, yBottom, end,
-          width = collider.width,
-          height = collider.height,
-          nextPosX = collider._newPosition.x,
-          nextPosY = collider._newPosition.y,
-          cellSize = this._cellSize,
-          tiles = this._collisionMaps[i];
+  _placeInGrid: function(collider) {
+    var jump, xLeft, xRight, yTop, yBot, end,
+        width = collider.width,
+        height = collider.height,
+        posX = collider._entity._position.x,
+        posY = collider._entity._position.y,
+        cellSize = this._world._cellSize;
 
-      // horizontal
-      jump = AXIS.toInt(nextPosY / cellSize);
-      xLeft = AXIS.toInt(nextPosX / cellSize);
-      xRight = AXIS.toInt((nextPosX + width) / cellSize);
-      end = AXIS.toInt((nextPosY + height) / cellSize);
+    // horizontal
+    jump = AXIS.toInt(posY / cellSize);
+    xLeft = AXIS.toInt(posX / cellSize);
+    xRight = AXIS.toInt((posX + width) / cellSize);
+    end = AXIS.toInt((posY + height) / cellSize);
 
-      for(;;) {
-        if(tiles[jump] && tiles[jump][xLeft]) {
-          console.log('hit-left');
-        }
-        if(tiles[jump] && tiles[jump][xRight]) {
-          console.log('hit-right');
-        }
-        if(jump === end) {
-          break;
-        }
-        jump++;
+    for(;;) {
+      this._addToGrid('y'+jump+'x'+xLeft, collider);
+      this._addToGrid('y'+jump+'x'+xRight, collider);
+      if(jump === end) {
+        break;
       }
+      jump++;
+    }
 
-      // vertical
-      jump = AXIS.toInt(nextPosX / cellSize);
-      yTop = AXIS.toInt(nextPosY / cellSize);
-      yBottom = AXIS.toInt((nextPosY + height) / cellSize);
-      end = AXIS.toInt((nextPosX + width) / cellSize);
+    // vertical
+    jump = AXIS.toInt(posX / cellSize);
+    yTop = AXIS.toInt(posY / cellSize);
+    yBot = AXIS.toInt((posY + height) / cellSize);
+    end = AXIS.toInt((posX + width) / cellSize);
 
-      for(;;) {
-        if(tiles[yTop] && tiles[yTop][jump]) {
-          console.log('hit-up');
-        }
-        if(tiles[yBottom] && tiles[yBottom][jump]) {
-          console.log('hit-down');
-        }
-        if(jump === end) {
-          break;
-        }
-        jump++;
+    for(;;) {
+      this._addToGrid('y'+yTop+'x'+jump, collider);
+      this._addToGrid('y'+yBot+'x'+jump, collider);
+      if(jump === end) {
+        break;
       }
+      jump++;
     }
   }
 };

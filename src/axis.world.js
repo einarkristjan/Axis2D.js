@@ -4,31 +4,29 @@ AXIS.World = function(params) {
   this._uid = new Date().getTime();
   this._frameCount = 0;
 
+  this._cellSize = params.cellSize || 64;
   this.debug = params.debug || false;
   this.renderer = params.renderer;
   this.entityManager = params.entityManager;
   this.collisionManager = params.collisionManager;
 
   if(!params.collisionManager) {
-    this.collisionManager = new AXIS.CollisionManager(params.cellSize);
+    this.collisionManager = new AXIS.CollisionManager(this);
   }
 
   if(!params.entityManager) {
-    this.entityManager = new AXIS.EntityManager();
+    this.entityManager = new AXIS.EntityManager(this);
   }
 };
 
 AXIS.World.prototype = {
   update: function() {
-    this.collisionManager.update();
     this.entityManager.update();
     this._frameCount++;
   },
   draw: function() {
-    var cc = this.collisionManager._cellSize;
     if(this.renderer && this.debug) {
-      this.collisionManager.debugDraw(this.renderer);
-      this.entityManager.debugDraw(this.renderer, cc);
+      this.entityManager.debugDraw(this.renderer);
     }
   },
   setCellSize: function(cellSize) {
@@ -38,6 +36,26 @@ AXIS.World.prototype = {
     return new AXIS.Entity(x, y, z, this);
   },
   createCollisionMap: function(map, offsetX, offsetY) {
-    return new AXIS.CollisionMap(map, offsetX, offsetY, this);
+    offsetX = offsetX || 0;
+    offsetY = offsetY || 0;
+
+    var x, y, ent, posX, posY,
+        cellSize = this._cellSize,
+        entities = [];
+
+    for(y = 0; y < map.length; y++) {
+      for(x = 0; x < map[y].length; x++) {
+        if(map[y][x]) {
+          posX = (x + offsetX) * cellSize;
+          posY = (y + offsetY) * cellSize;
+
+          ent = new AXIS.Entity(posX, posY, 0, this);
+          ent.setCollider(cellSize, cellSize);
+
+          entities.push(ent);
+        }
+      }
+    }
+    return entities;
   }
 };
