@@ -12,6 +12,18 @@ AXIS.CanvasRenderer.prototype = {
   clear: function() {
     this._ctx.clearRect(0, 0, this._width, this._height);
   },
+  setFont: function(font, size, textAlign, textBaseline) {
+    var ctx = this._ctx;
+    ctx.font = size + 'px ' + font;
+    ctx.textAlign = textAlign || ctx.textAlign;
+    ctx.textBaseline = textBaseline || ctx.textBaseline;
+  },
+  fillText: function(text, x, y) {
+    this._ctx.fillText(text, x, y);
+  },
+  strokeText: function(text, x, y) {
+    this._ctx.strokeText(text, x, y);
+  },
   setColor: function(red, green, blue, alpha) {
     alpha = alpha || 1.0;
     var rgba = 'rgba('+red+','+green+','+blue+','+alpha+')';

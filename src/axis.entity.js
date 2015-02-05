@@ -12,17 +12,18 @@ AXIS.Entity = function(x, y, zIndex, world) {
 };
 
 AXIS.Entity.prototype = {
-  setPosition: function(x, y) {
-    this._position.x = x;
-    this._position.y = y;
-  },
   moveTo: function(x, y) {
     if(this.collider) {
       this.collider.moveTo(x, y);
     }
     else {
-      this.setPosition(x, y);
+      this._position.x = x;
+      this._position.y = y;
     }
+  },
+  fixPosition: function() {
+    this._position.x = this.collider._newPosition.x;
+    this._position.y = this.collider._newPosition.y;
   },
   setCollider: function(width, height) {
     var collider = new AXIS.Entity.Collider(width, height, this);

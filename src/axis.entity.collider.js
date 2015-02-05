@@ -2,16 +2,16 @@ AXIS.Entity.Collider = function(width, height, entity) {
   this.width = width;
   this.height = height;
 
+  this._moved = false;
   this._entity = entity;
-
   this._newPosition = new AXIS.Vector2();
+
+  this.contacts = [];
 
   if(entity) {
     this._newPosition.x = entity._position.x;
     this._newPosition.y = entity._position.y;
   }
-
-  this.contacts = [];
 };
 
 AXIS.Entity.Collider.prototype = {
@@ -20,6 +20,11 @@ AXIS.Entity.Collider.prototype = {
 
     this._newPosition.x = x;
     this._newPosition.y = y;
+
+    this._moved = true;
+  },
+  resolved: function() {
+    this._moved = false;
   },
   addContact: function(collider) {
     var i, c,

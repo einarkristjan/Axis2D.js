@@ -6,22 +6,16 @@ AXIS.EntityManager = function(world) {
 
 AXIS.EntityManager.prototype = {
   update: function() {
-    var i, e, s, key, scripts, collider, velX, velY;
+    var i, e, s, key, scripts, collider;
 
     for(i = 0; i < this._entities.length; i++) {
       e = this._entities[i];
       scripts = e.scripts;
       collider = e.collider;
 
-      if(collider) {
-        velX = collider._newPosition.x - e._position.x;
-        velY = collider._newPosition.y - e._position.y;
-        // collisions solved so fix pos
-
-        if(velX || velY) {
-          this._world.collisionManager.resolve(collider);
-          e.setPosition(collider._newPosition.x, collider._newPosition.y);
-        }
+      if(collider._moved) {
+        this._world.collisionManager.resolve(collider);
+        e.fixPosition();
       }
 
       for(key in scripts) {
@@ -33,9 +27,10 @@ AXIS.EntityManager.prototype = {
   addEntity: function(entity) {
     this._entities.push(entity);
   },
-  debugDraw: function(renderer) {
+  debugDraw: function() {
     var i, e, x, y, w, h, collider,
-        cellSize = this._world._cellSize;
+        cellSize = this._world.cellSize,
+        renderer = this._world.renderer;
 
     for(i = 0; i < this._entities.length; i++) {
       e = this._entities[i];

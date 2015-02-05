@@ -4,7 +4,7 @@ AXIS.World = function(params) {
   this._uid = new Date().getTime();
   this._frameCount = 0;
 
-  this._cellSize = params.cellSize || 64;
+  this.cellSize = params.cellSize || 64;
   this.debug = params.debug || false;
   this.renderer = params.renderer;
   this.entityManager = params.entityManager;
@@ -26,11 +26,9 @@ AXIS.World.prototype = {
   },
   draw: function() {
     if(this.renderer && this.debug) {
-      this.entityManager.debugDraw(this.renderer);
+      this.collisionManager.debugDraw();
+      this.entityManager.debugDraw();
     }
-  },
-  setCellSize: function(cellSize) {
-    this.collisionManager.setCellSize(cellSize);
   },
   createEntity: function(x, y, z) {
     return new AXIS.Entity(x, y, z, this);
@@ -40,7 +38,7 @@ AXIS.World.prototype = {
     offsetY = offsetY || 0;
 
     var x, y, ent, posX, posY,
-        cellSize = this._cellSize,
+        cellSize = this.cellSize,
         entities = [];
 
     for(y = 0; y < map.length; y++) {

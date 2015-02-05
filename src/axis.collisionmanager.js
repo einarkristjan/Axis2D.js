@@ -1,17 +1,18 @@
 AXIS.CollisionManager = function(world) {
   this._grid = {};
-  this._colliders = [];
 
   this._world = world;
 };
 
 AXIS.CollisionManager.prototype = {
   resolve: function(collider) {
-
     // TODO: resolve collisions
-    
 
-    this._placeInGrid(collider);
+    collider.resolved();
+
+    // this._placeInGrid(collider);
+
+    console.log(this._grid);
   },
   setCellSize: function() {
     var i;
@@ -19,38 +20,38 @@ AXIS.CollisionManager.prototype = {
       this._placeInGrid(this._colliders[i]);
     }
   },
-  addCollisionMap: function(collisionMap) {
-    var i, j, col, row;
+  debugDraw: function() {
+    var g, key, x, y, split,
+        cellSize = this._world.cellSize,
+        renderer = this._world.renderer;
 
-    this._collisionMaps.push(collisionMap);
+    renderer.setFont('Arial', cellSize/2, 'center', 'middle');
 
-    for(i = 0; i < collisionMap.length; i++) {
-      row = collisionMap[i];
-      for(j = 0; j < row.length; j++) {
-        col = row[j];
-        if(col) {
-          this._grid['y'+i+'x'+j] = col;
-        }
-      }
+    for(key in this._grid) {
+      g = this._grid[key];
+      split = key.split(/(\d*)/);
+      x = split[1] * cellSize;
+      y = split[3] * cellSize;
+
+      renderer.setColor(127, 127, 127);
+      renderer.fillText(g.length, x + cellSize/2, y + cellSize/2);
+      renderer.strokeRect(x, y, cellSize, cellSize);
     }
   },
   addCollider: function(collider) {
-    // this._placeInGrid(collider);
-
-    this._colliders.push(collider);
+    this._placeInGrid(collider);
   },
+  /*
   removeCollider: function(body) {
     var index = this._colliders.indexOf(body);
     if(index > -1) {
       this._colliders.splice(index, 1);
     }
   },
-  debugDraw: function(renderer) {
-    this._debugDrawCollisionMaps(renderer);
-    this._debugDrawColliders(renderer);
-  },
-  _addToGrid: function(key, collider) {
+  */
+  _addToGrid: function(x, y, collider) {
     var i,
+        key = 'x'+x+'y'+y,
         needle = false;
 
     if(!this._grid[key]) {
@@ -69,11 +70,11 @@ AXIS.CollisionManager.prototype = {
   },
   _placeInGrid: function(collider) {
     var jump, xLeft, xRight, yTop, yBot, end,
-        width = collider.width,
-        height = collider.height,
+        width = collider.width - 1,
+        height = collider.height - 1,
         posX = collider._entity._position.x,
         posY = collider._entity._position.y,
-        cellSize = this._world._cellSize;
+        cellSize = this._world.cellSize;
 
     // horizontal
     jump = AXIS.toInt(posY / cellSize);
@@ -82,8 +83,8 @@ AXIS.CollisionManager.prototype = {
     end = AXIS.toInt((posY + height) / cellSize);
 
     for(;;) {
-      this._addToGrid('y'+jump+'x'+xLeft, collider);
-      this._addToGrid('y'+jump+'x'+xRight, collider);
+      this._addToGrid(xLeft, jump, collider);
+      this._addToGrid(xRight, jump, collider);
       if(jump === end) {
         break;
       }
@@ -97,8 +98,8 @@ AXIS.CollisionManager.prototype = {
     end = AXIS.toInt((posX + width) / cellSize);
 
     for(;;) {
-      this._addToGrid('y'+yTop+'x'+jump, collider);
-      this._addToGrid('y'+yBot+'x'+jump, collider);
+      this._addToGrid(jump, yTop, collider);
+      this._addToGrid(jump, yBot, collider);
       if(jump === end) {
         break;
       }
