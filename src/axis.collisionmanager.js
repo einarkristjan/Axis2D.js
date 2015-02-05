@@ -8,9 +8,6 @@ AXIS.CollisionManager.prototype = {
   resolve: function(collider) {
     // TODO: resolve collisions
 
-    collider.resolved();
-
-    // this._placeInGrid(collider);
 
     console.log(this._grid);
   },
@@ -25,7 +22,7 @@ AXIS.CollisionManager.prototype = {
         cellSize = this._world.cellSize,
         renderer = this._world.renderer;
 
-    renderer.setFont('Arial', cellSize/2, 'center', 'middle');
+    renderer.setFont('Arial', cellSize/4, 'center', 'middle');
 
     for(key in this._grid) {
       g = this._grid[key];
@@ -39,16 +36,25 @@ AXIS.CollisionManager.prototype = {
     }
   },
   addCollider: function(collider) {
-    this._placeInGrid(collider);
+    var x = collider._entity._position.x,
+        y = collider._entity._position.y;
+    this.placeInGrid(collider, x, y);
   },
-  /*
-  removeCollider: function(body) {
-    var index = this._colliders.indexOf(body);
-    if(index > -1) {
-      this._colliders.splice(index, 1);
+  _aabbIntersection: function(collider1, collider2) {
+    var col1X = collider1._entity._position.x,
+        col1Y = collider1._entity._position.y,
+        col1W = collider1.width,
+        col1H = collider1.height,
+        col2X = collider2._entity._position.x,
+        col2Y = collider2._entity._position.y,
+        col2W = collider2.width,
+        col2H = collider2.height;
+
+    if(col1X > col2W || col1Y > col2H || col1W < col2X || col1H < col2Y) {
+      return false;
     }
+    return true;
   },
-  */
   _addToGrid: function(x, y, collider) {
     var i,
         key = 'x'+x+'y'+y,
@@ -65,45 +71,55 @@ AXIS.CollisionManager.prototype = {
     }
 
     if(!needle) {
+      collider.addToGrid(key);
       this._grid[key].push(collider);
     }
   },
-  _placeInGrid: function(collider) {
-    var jump, xLeft, xRight, yTop, yBot, end,
-        width = collider.width - 1,
-        height = collider.height - 1,
-        posX = collider._entity._position.x,
-        posY = collider._entity._position.y,
+  placeInGrid: function(collider, posX, posY) {
+    var i, cgKey, gKey, keyX, keyY,
+        x = 0,
+        y = 0,
+        cWidth = collider.width,
+        cHeight = collider.height,
         cellSize = this._world.cellSize;
 
-    // horizontal
-    jump = AXIS.toInt(posY / cellSize);
-    xLeft = AXIS.toInt(posX / cellSize);
-    xRight = AXIS.toInt((posX + width) / cellSize);
-    end = AXIS.toInt((posY + height) / cellSize);
+    // delete from last grid position
+    for(i = 0; i < collider._grid.length; i++) {
+      cgKey = collider._grid[i];
+      gKey = this._grid[cgKey];
 
-    for(;;) {
-      this._addToGrid(xLeft, jump, collider);
-      this._addToGrid(xRight, jump, collider);
-      if(jump === end) {
-        break;
+      gKey.splice(gKey.indexOf(collider), 1);
+
+      if(!gKey.length) {
+        delete this._grid[cgKey];
       }
-      jump++;
     }
-
-    // vertical
-    jump = AXIS.toInt(posX / cellSize);
-    yTop = AXIS.toInt(posY / cellSize);
-    yBot = AXIS.toInt((posY + height) / cellSize);
-    end = AXIS.toInt((posX + width) / cellSize);
+    collider.resetGrid();
 
     for(;;) {
-      this._addToGrid(jump, yTop, collider);
-      this._addToGrid(jump, yBot, collider);
-      if(jump === end) {
+      keyX = AXIS.toInt((x+posX) / cellSize);
+      keyY = AXIS.toInt((y+posY) / cellSize);
+
+      this._addToGrid(keyX, keyY, collider);
+
+      if(x === cWidth && y === cHeight) {
         break;
       }
-      jump++;
+
+      if(x === cWidth) {
+        x = 0;
+        y += cellSize;
+        if(y > cHeight) {
+          y = cHeight;
+        }
+      }
+      else {
+        x += cellSize;
+      }
+
+      if(x > cWidth) {
+        x = cWidth;
+      }
     }
   }
 };

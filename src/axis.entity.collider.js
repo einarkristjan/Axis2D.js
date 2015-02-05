@@ -2,11 +2,12 @@ AXIS.Entity.Collider = function(width, height, entity) {
   this.width = width;
   this.height = height;
 
+  this.contacts = [];
+
   this._moved = false;
   this._entity = entity;
   this._newPosition = new AXIS.Vector2();
-
-  this.contacts = [];
+  this._grid = [];
 
   if(entity) {
     this._newPosition.x = entity._position.x;
@@ -16,7 +17,7 @@ AXIS.Entity.Collider = function(width, height, entity) {
 
 AXIS.Entity.Collider.prototype = {
   moveTo: function(x, y) {
-    // TODO: set new position in grid
+    this._entity.world.collisionManager.placeInGrid(this, x , y);
 
     this._newPosition.x = x;
     this._newPosition.y = y;
@@ -24,7 +25,14 @@ AXIS.Entity.Collider.prototype = {
     this._moved = true;
   },
   resolved: function() {
+    var x = this._newPosition.x,
+        y = this._newPosition.y;
+
+    this._entity.world.collisionManager.placeInGrid(this, x , y);
     this._moved = false;
+  },
+  resolveCollisions: function() {
+    this._entity.world.collisionManager.resolve(this);
   },
   addContact: function(collider) {
     var i, c,
@@ -40,5 +48,11 @@ AXIS.Entity.Collider.prototype = {
     if(!needle) {
       this.contacts.push(collider);
     }
+  },
+  resetGrid: function() {
+    this._grid = [];
+  },
+  addToGrid: function(key) {
+    this._grid.push(key);
   }
 };

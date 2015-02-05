@@ -8,13 +8,23 @@ AXIS.EntityManager.prototype = {
   update: function() {
     var i, e, s, key, scripts, collider;
 
+    // first pass - collisions resolved
+    for(i = 0; i < this._entities.length; i++) {
+      e = this._entities[i];
+      collider = e.collider;
+
+      if(collider._moved) {
+        collider.resolveCollisions();
+      }
+    }
+
+    // second pass - collisions fixed .. etc..
     for(i = 0; i < this._entities.length; i++) {
       e = this._entities[i];
       scripts = e.scripts;
       collider = e.collider;
 
       if(collider._moved) {
-        this._world.collisionManager.resolve(collider);
         e.fixPosition();
       }
 

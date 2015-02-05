@@ -48,7 +48,7 @@ AXIS.World.prototype = {
           posY = (y + offsetY) * cellSize;
 
           ent = new AXIS.Entity(posX, posY, 0, this);
-          ent.setCollider(cellSize, cellSize);
+          ent.setCollider(cellSize - 1, cellSize - 1);
 
           entities.push(ent);
         }

@@ -24,6 +24,7 @@ AXIS.Entity.prototype = {
   fixPosition: function() {
     this._position.x = this.collider._newPosition.x;
     this._position.y = this.collider._newPosition.y;
+    this.collider.resolved();
   },
   setCollider: function(width, height) {
     var collider = new AXIS.Entity.Collider(width, height, this);
