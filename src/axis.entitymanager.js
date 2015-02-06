@@ -13,8 +13,8 @@ AXIS.EntityManager.prototype = {
       e = this._entities[i];
       collider = e.collider;
 
-      if(collider._moved) {
-        collider.resolveCollisions();
+      if(collider) {
+        this._world.collisionManager.resolve(collider);
       }
     }
 
@@ -24,8 +24,8 @@ AXIS.EntityManager.prototype = {
       scripts = e.scripts;
       collider = e.collider;
 
-      if(collider._moved) {
-        e.fixPosition();
+      if(collider) {
+        e._position.set(collider._position.x, collider._position.y);
       }
 
       for(key in scripts) {

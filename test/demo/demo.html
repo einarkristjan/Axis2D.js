@@ -106,7 +106,12 @@
           if(entity.world._frameCount === 50) {
             entity.moveTo(250, 200);
             console.log(this.bar());
+
           }
+          else if(entity.world._frameCount === 51) {
+            console.log(entity.collider.contacts);
+          }
+
         });
 
   (function loop() {

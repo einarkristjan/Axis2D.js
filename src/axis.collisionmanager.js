@@ -6,16 +6,24 @@ AXIS.CollisionManager = function(world) {
 
 AXIS.CollisionManager.prototype = {
   resolve: function(collider) {
-    // TODO: resolve collisions
+    var i, j, key, otherCollider;
 
-
-    console.log(this._grid);
-  },
-  setCellSize: function() {
-    var i;
-    for(i = 0; i < this._colliders.length; i++) {
-      this._placeInGrid(this._colliders[i]);
+    // add contacts before resolving collision
+    for(i = 0; i < collider._positionInGridKeys.length; i++) {
+      key = collider._positionInGridKeys[i];
+      for(j = 0; j < this._grid[key].length; j++) {
+        otherCollider = this._grid[key][j];
+        if(otherCollider !== collider) {
+          if(this._aabbIntersection(collider, otherCollider)) {
+            collider._addContact(otherCollider);
+          }
+        }
+      }
     }
+
+    // TODO: resolve collisions and set new collider position
+
+    collider._moveTo(collider._position.x, collider._position.y);
   },
   debugDraw: function() {
     var g, key, x, y, split,
@@ -38,22 +46,20 @@ AXIS.CollisionManager.prototype = {
   addCollider: function(collider) {
     var x = collider._entity._position.x,
         y = collider._entity._position.y;
-    this.placeInGrid(collider, x, y);
-  },
-  _aabbIntersection: function(collider1, collider2) {
-    var col1X = collider1._entity._position.x,
-        col1Y = collider1._entity._position.y,
-        col1W = collider1.width,
-        col1H = collider1.height,
-        col2X = collider2._entity._position.x,
-        col2Y = collider2._entity._position.y,
-        col2W = collider2.width,
-        col2H = collider2.height;
 
-    if(col1X > col2W || col1Y > col2H || col1W < col2X || col1H < col2Y) {
-      return false;
-    }
-    return true;
+    this._placeInGrid(collider, x, y);
+  },
+  _aabbIntersection: function(colliderA, colliderB) {
+    var aX = colliderA._position.x,
+        aY = colliderA._position.y,
+        aW = aX + colliderA.width,
+        aH = aY + colliderA.height,
+        bX = colliderB._position.x,
+        bY = colliderB._position.y,
+        bW = bX + colliderB.width,
+        bH = bY + colliderB.height;
+
+    return !(bX > aW || bW < aX || bY > aH || bH < aY);
   },
   _addToGrid: function(x, y, collider) {
     var i,
@@ -71,21 +77,23 @@ AXIS.CollisionManager.prototype = {
     }
 
     if(!needle) {
-      collider.addToGrid(key);
+      collider._positionInGridKeys.push(key);
       this._grid[key].push(collider);
     }
   },
-  placeInGrid: function(collider, posX, posY) {
+  _placeInGrid: function(collider) {
     var i, cgKey, gKey, keyX, keyY,
         x = 0,
         y = 0,
+        posX = collider._position.x,
+        posY = collider._position.y,
         cWidth = collider.width,
         cHeight = collider.height,
         cellSize = this._world.cellSize;
 
-    // delete from last grid position
-    for(i = 0; i < collider._grid.length; i++) {
-      cgKey = collider._grid[i];
+    // delete from last main grid position
+    for(i = 0; i < collider._positionInGridKeys.length; i++) {
+      cgKey = collider._positionInGridKeys[i];
       gKey = this._grid[cgKey];
 
       gKey.splice(gKey.indexOf(collider), 1);
@@ -94,7 +102,8 @@ AXIS.CollisionManager.prototype = {
         delete this._grid[cgKey];
       }
     }
-    collider.resetGrid();
+    // reset collider grid keys after deleting from main grid
+    collider._positionInGridKeys = [];
 
     for(;;) {
       keyX = AXIS.toInt((x+posX) / cellSize);

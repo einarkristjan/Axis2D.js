@@ -4,5 +4,8 @@ AXIS.Vector2 = function(x, y) {
 };
 
 AXIS.Vector2.prototype = {
-
+  set: function(x, y) {
+    this.x = x;
+    this.y = y;
+  }
 };
