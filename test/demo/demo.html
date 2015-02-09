@@ -39,12 +39,13 @@
 
   <script src="../../src/axis.js"></script>
   <script src="../../src/axis.world.js"></script>
-  <script src="../../src/axis.canvasrenderer.js"></script>
-  <script src="../../src/axis.entitymanager.js"></script>
-  <script src="../../src/axis.entity.js"></script>
-  <script src="../../src/axis.entity.collider.js"></script>
-  <script src="../../src/axis.collisionmanager.js"></script>
-  <script src="../../src/axis.vector2.js"></script>
+  <script src="../../src/axis.collider.js"></script>
+
+  <script src="demo.vector2.js"></script>
+  <script src="demo.world.js"></script>
+  <script src="demo.canvasrenderer.js"></script>
+  <script src="demo.entitymanager.js"></script>
+  <script src="demo.entity.js"></script>
 
   <script>
 (function(){
@@ -61,8 +62,8 @@
   var width = 768,
       height = 576,
       canvas = document.querySelector('canvas'),
-      renderer = new AXIS.CanvasRenderer(canvas, width, height),
-      axisWorld = new AXIS.World({
+      renderer = new DEMO.CanvasRenderer(canvas, width, height),
+      axisWorld = new DEMO.World({
         renderer: renderer,
         debug: true
       });
@@ -91,28 +92,22 @@
 
   axisWorld
     .createEntity(123, 121)
-      .setCollider(100, 100)
-      .addScript(
-        'playerMovement',
-        {
-          foo: true,
-          bar: function() {
-            return this.foo;
-          }
-        },
-        function(entity) {
-          // console.log(this.foo, entity.scripts.playerMovement.foo);
-
-          if(entity.world._frameCount === 50) {
-            entity.moveTo(250, 200);
-            console.log(this.bar());
-
-          }
-          else if(entity.world._frameCount === 51) {
-            console.log(entity.collider.contacts);
-          }
-
-        });
+      .setCollider(100, 100, -50, -50)
+      .setUserData({
+        foo: 123,
+        bar: function() {
+          return this.foo;
+        }
+      })
+      .setLoop(function() {
+        if(this.world._frameCount === 50) {
+          this.moveTo(300, 250);
+          console.log(this.userData.bar());
+        }
+      })
+      .onCollision(function(entity){
+        // console.log(entity.collider);
+      });
 
   (function loop() {
     requestAnimFrame(loop);

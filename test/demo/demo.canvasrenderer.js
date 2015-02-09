@@ -1,4 +1,6 @@
-AXIS.CanvasRenderer = function(canvas, width, height) {
+var DEMO = DEMO || {};
+
+DEMO.CanvasRenderer = function(canvas, width, height) {
   this._canvas = canvas || document.createElement('canvas');
   this._ctx = this._canvas.getContext('2d');
   this._width = width || this._canvas.width;
@@ -8,7 +10,7 @@ AXIS.CanvasRenderer = function(canvas, width, height) {
   this.resize(this._width, this._height);
 };
 
-AXIS.CanvasRenderer.prototype = {
+DEMO.CanvasRenderer.prototype = {
   clear: function() {
     this._ctx.clearRect(0, 0, this._width, this._height);
   },
