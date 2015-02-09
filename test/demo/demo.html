@@ -105,8 +105,9 @@
           console.log(this.userData.bar());
         }
       })
-      .onCollision(function(entity){
-        // console.log(entity.collider);
+      .onCollision(function(entities){
+        console.log(this);
+        console.log(entities);
       });
 
   (function loop() {

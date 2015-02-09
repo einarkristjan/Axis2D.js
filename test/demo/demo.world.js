@@ -57,29 +57,29 @@ DEMO.World.prototype = {
     }
   },
   createEntity: function(x, y, z) {
-    return new DEMO.Entity(x, y, z, this);
+    return new DEMO.Entity(this, x, y, z);
   },
   createCollisionMap: function(map, offsetX, offsetY) {
     offsetX = offsetX || 0;
     offsetY = offsetY || 0;
 
-    var x, y, ent, posX, posY,
+    var ent, posX, posY,
         cellSize = this.cellSize,
         entities = [];
 
-    for(y = 0; y < map.length; y++) {
-      for(x = 0; x < map[y].length; x++) {
-        if(map[y][x]) {
+    map.forEach(function(row, y){
+      row.forEach(function(col, x){
+        if(col) {
           posX = (x + offsetX) * cellSize;
           posY = (y + offsetY) * cellSize;
 
-          ent = new DEMO.Entity(posX, posY, 0, this);
+          ent = new DEMO.Entity(this, posX, posY);
           ent.setCollider(cellSize - 1, cellSize - 1);
 
           entities.push(ent);
         }
-      }
-    }
+      }, this);
+    }, this);
     return entities;
   }
 };

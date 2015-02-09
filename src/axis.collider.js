@@ -1,4 +1,8 @@
-AXIS.Collider = function(x, y, width, height, offsetX, offsetY, axisWorld) {
+AXIS.Collider = function(axisWorld, x, y, width, height, offsetX, offsetY) {
+  if(!axisWorld) {
+    throw TypeError('axisWorld not defined');
+  }
+
   this._position = {
     x: x || 0,
     y: y || 0
@@ -16,9 +20,11 @@ AXIS.Collider = function(x, y, width, height, offsetX, offsetY, axisWorld) {
   this._contacts = [];
 
   this._userData = undefined;
+  this._collisionCallback = undefined;
 
   this._axisWorld = axisWorld;
   this._axisWorld._placeInGrid(this);
+  this._axisWorld._colliders.push(this);
 };
 
 AXIS.Collider.prototype = {
@@ -45,29 +51,19 @@ AXIS.Collider.prototype = {
     this._axisWorld._placeInGrid(this);
   },
   _addContact: function(collider) {
-    var i, c,
-        cs = this._contacts,
-        needle = false;
+    var cs = this._contacts;
 
-    for(i = 0; i < cs.length; i++) {
-      c = cs[i];
-      if(c === collider) {
-        needle = true;
-        break;
-      }
-    }
-
-    if(!needle) {
+    if(cs.indexOf(collider) === -1) {
       cs.push(collider);
     }
-  },
-  getContacts: function() {
-    return this._contacts;
   },
   setUserData: function(data) {
     this._userData = data;
   },
   getUserData: function() {
     return this._userData;
+  },
+  setCollisionCallback: function(callback) {
+    this._collisionCallback = callback;
   }
 };

@@ -8,23 +8,22 @@ DEMO.EntityManager = function(world) {
 
 DEMO.EntityManager.prototype = {
   update: function() {
-    var i, e, loop, collider;
+    var loop, collider;
 
     this._world.collisionManager.update();
 
-    for(i = 0; i < this._entities.length; i++) {
-      e = this._entities[i];
-      loop = e._loop;
-      collider = e.collider;
+    this._entities.forEach(function(entity){
+      loop = entity._loop;
+      collider = entity.collider;
 
       if(collider) {
-        e._position.set(collider._position.x, collider._position.y);
+        entity._position.set(collider._position.x, collider._position.y);
       }
 
       if(loop) {
-        loop.call(e);
+        loop.call(entity);
       }
-    }
+    }, this);
   },
   addEntity: function(entity) {
     this._entities.push(entity);

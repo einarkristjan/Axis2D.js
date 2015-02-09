@@ -1,6 +1,6 @@
 var DEMO = DEMO || {};
 
-DEMO.Entity = function(x, y, zIndex, world) {
+DEMO.Entity = function(world, x, y, zIndex) {
   this._position = new DEMO.Vector2(x || 0, y || 0);
 
   this.zIndex = zIndex || 0;
@@ -33,6 +33,8 @@ DEMO.Entity.prototype = {
         y = this._position.y,
         collider = cm.createCollider(x, y, width, height, offsetX, offsetY);
 
+    collider.setUserData(this);
+
     this.collider = collider;
 
     return this;
@@ -43,7 +45,19 @@ DEMO.Entity.prototype = {
     return this;
   },
   onCollision: function(callback) {
-    this._collisionCallback = callback;
+    var entity = this;
+
+    function entityCallback(colliders) {
+      var entities = colliders.map(function(collider){
+        return collider.getUserData();
+      });
+
+      callback.call(entity, entities);
+    }
+
+    if(this.collider) {
+      this.collider.setCollisionCallback(entityCallback);
+    }
 
     return this;
   }
