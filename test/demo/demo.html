@@ -37,6 +37,7 @@
     })();
   </script>
 
+  <script src="../../intersect/intersect.js"></script>
   <script src="../../src/axis.js"></script>
   <script src="../../src/axis.world.js"></script>
   <script src="../../src/axis.collider.js"></script>
@@ -81,9 +82,9 @@
     .createCollisionMap([
       [1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1],
       [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-      [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+      [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1],
       [0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0],
+      [0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0],
       [0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0],
       [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
       [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
@@ -92,7 +93,7 @@
 
   axisWorld
     .createEntity(123, 121)
-      .setCollider(100, 100, -50, -50)
+      .setCollider(100, 100)
       .setUserData({
         foo: 123,
         bar: function() {
@@ -101,13 +102,16 @@
       })
       .setLoop(function() {
         if(this.world._frameCount === 50) {
-          this.moveTo(300, 250);
+          this.moveTo(100, 100);
           console.log(this.userData.bar());
         }
+
+        if(this.world._frameCount === 100) {
+          this.moveTo(290, 230);
+        }
       })
-      .onCollision(function(entities){
-        console.log(this);
-        console.log(entities);
+      .onCollision(function(hits){
+        console.log(hits);
       });
 
   (function loop() {

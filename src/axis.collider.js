@@ -1,19 +1,19 @@
-AXIS.Collider = function(axisWorld, x, y, width, height, offsetX, offsetY) {
+AXIS.Collider = function(axisWorld, x, y, width, height, isDynamic) {
   if(!axisWorld) {
     throw TypeError('axisWorld not defined');
   }
 
-  this._position = {
-    x: x || 0,
-    y: y || 0
-  };
+  this._axisWorld = axisWorld;
 
-  this._width = width || 1;
-  this._height = height || 1;
+  this._AABB = new intersect.AABB({},{});
+  this._AABB.pos.x = x || 0;
+  this._AABB.pos.y = y || 0;
+  this._AABB.half.x = (width || axisWorld._cellSize - 1) / 2;
+  this._AABB.half.y = (height || axisWorld._cellSize - 1) / 2;
 
-  this._offset = {
-    x: offsetX || 0,
-    y: offsetY || 0
+  this._velocity = {
+    x: 0,
+    y: 0
   };
 
   this._positionInGridKeys = [];
@@ -22,40 +22,42 @@ AXIS.Collider = function(axisWorld, x, y, width, height, offsetX, offsetY) {
   this._userData = undefined;
   this._collisionCallback = undefined;
 
-  this._axisWorld = axisWorld;
+  this._isDynamic = isDynamic || false;
+  this.setDynamic(this._isDynamic);
+
   this._axisWorld._placeInGrid(this);
   this._axisWorld._colliders.push(this);
 };
 
 AXIS.Collider.prototype = {
   setPosition: function(x, y) {
-    this._position.x = x;
-    this._position.y = y;
+    this._velocity.x = x - this._AABB.pos.x;
+    this._velocity.y = y - this._AABB.pos.y;
 
-    this._changed();
-  },
-  setOffset: function(x, y) {
-    this._offset.x = x;
-    this._offset.y = y;
+    this._AABB.pos.x = x;
+    this._AABB.pos.y = y;
 
     this._changed();
   },
   setSize: function(width, height) {
-    this._width = width;
-    this._height = height;
+    this._AABB.half.x = width/2;
+    this._AABB.half.y = height/2;
 
     this._changed();
   },
-  _changed: function() {
-    this._axisWorld._setDynamicCollider(this);
-    this._axisWorld._placeInGrid(this);
-  },
-  _addContact: function(collider) {
-    var cs = this._contacts;
+  setDynamic: function(bool) {
+    var dcs = this._axisWorld._dynamicColliders;
+    this._isDynamic = bool;
 
-    if(cs.indexOf(collider) === -1) {
-      cs.push(collider);
+    if(bool) {
+      dcs.push(this);
     }
+    else {
+      dcs.splice(dcs.indexOf(this), 1);
+    }
+  },
+  _changed: function() {
+    this._axisWorld._placeInGrid(this);
   },
   setUserData: function(data) {
     this._userData = data;

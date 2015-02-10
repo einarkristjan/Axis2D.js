@@ -27,33 +27,38 @@ DEMO.World.prototype = {
     this._frameCount++;
   },
   draw: function() {
-    var renderer = this.renderer,
+    var r = this.renderer,
         cellSize = this.cellSize;
 
-    if(renderer && this.debug) {
-      renderer.setFont('Arial', this.cellSize/4, 'center', 'middle');
-      renderer.setColor(127, 127, 127);
+    if(r && this.debug) {
+
+      this.collisionManager.debugDrawColliders(
+        function(x, y, width, height, centerX, centerY, isDynamic) {
+          r.setColor(255, 0, 0, 0.3);
+          if(isDynamic) {
+            r.setColor(0, 255, 0, 0.3);
+          }
+          r.fillRect(x, y, width, height);
+
+          r.setColor(255, 0, 0);
+          if(isDynamic) {
+            r.setColor(0, 255, 0);
+          }
+          r.strokeCircle(centerX, centerY, cellSize/4);
+          r.strokeRect(x, y, width, height);
+        }
+      );
+
+      r.setFont('Arial', this.cellSize/4, 'center', 'middle');
+      r.setColor(150, 150, 150);
 
       this.collisionManager.debugDrawGrid(
         function(x, y, width, height, colliderCount) {
-          renderer.fillText(colliderCount, x + width/2, y + height/2);
-          renderer.strokeRect(x, y, width, height);
+          r.fillText(colliderCount, x + width/2, y + height/2);
+          r.strokeRect(x, y, width, height);
         }
       );
 
-      this.collisionManager.debugDrawColliders(
-        function(x, y, width, height, offsetX, offsetY) {
-          renderer.setColor(200, 200, 200, 0.5);
-          renderer.fillCircle(x, y, cellSize/8);
-          renderer.setColor(200, 200, 200);
-          renderer.strokeCircle(x, y, cellSize/8);
-
-          renderer.setColor(0, 255, 0, 0.3);
-          renderer.fillRect(x + offsetX, y + offsetY, width, height);
-          renderer.setColor(0, 255, 0);
-          renderer.strokeRect(x + offsetX, y + offsetY, width, height);
-        }
-      );
     }
   },
   createEntity: function(x, y, z) {
@@ -63,17 +68,17 @@ DEMO.World.prototype = {
     offsetX = offsetX || 0;
     offsetY = offsetY || 0;
 
-    var ent, posX, posY,
+    var ent, centerX, centerY,
         cellSize = this.cellSize,
         entities = [];
 
     map.forEach(function(row, y){
       row.forEach(function(col, x){
         if(col) {
-          posX = (x + offsetX) * cellSize;
-          posY = (y + offsetY) * cellSize;
+          centerX = (x + offsetX + 0.5) * cellSize;
+          centerY = (y + offsetY + 0.5) * cellSize;
 
-          ent = new DEMO.Entity(this, posX, posY);
+          ent = new DEMO.Entity(this, centerX, centerY);
           ent.setCollider(cellSize - 1, cellSize - 1);
 
           entities.push(ent);

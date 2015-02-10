@@ -9,7 +9,8 @@ AXIS.World = function(cellSize) {
 
 AXIS.World.prototype = {
   update: function() {
-    var collidersHit = [];
+    var hitA, hitB,
+        collidersHit = [];
 
     // first pass - collision checks / add contacts
     this._dynamicColliders.forEach(function(colliderA){
@@ -17,11 +18,17 @@ AXIS.World.prototype = {
         this._grid[key].forEach(function(colliderB){
 
           if(colliderA !== colliderB) {
+            hitB = colliderB._AABB.intersectAABB(colliderA._AABB);
 
-            if(this._aabbIntersection(colliderA, colliderB)) {
+            if(hitB) {
+              hitA = colliderA._AABB.intersectAABB(colliderB._AABB);
 
-              colliderA._addContact(colliderB);
-              colliderB._addContact(colliderA);
+              // overwrite for collision callbacks to access collider
+              hitA.collider = colliderB;
+              hitB.collider = colliderA;
+
+              colliderA._contacts.push(hitA);
+              colliderB._contacts.push(hitB);
 
               if(collidersHit.indexOf(colliderA) === -1) {
                 collidersHit.push(colliderA);
@@ -40,20 +47,51 @@ AXIS.World.prototype = {
     }, this);
 
     // TODO: second pass - resolve collisions
+    this._dynamicColliders.forEach(function(collider){
+      var xFix = 0,
+          yFix = 0;
 
+      collider._contacts.forEach(function(contact){
 
-    // third pass - return contacts
-    collidersHit.forEach(function(ch){
-      if(ch._collisionCallback) {
-        ch._collisionCallback(ch._contacts);
+        // fix only against static colliders
+        if(!contact._isDynamic) {
 
-        // cleanup for next round
-        ch._contacts = [];
-      }
+          if(collider._velocity.x < 0 && contact.normal.x < 0) {
+            xFix = contact.delta.x < xFix ? contact.delta.x : xFix;
+          }
+          else if(collider._velocity.x > 0 && contact.normal.x > 0) {
+            xFix = contact.delta.x > xFix ? contact.delta.x : xFix;
+          }
+
+          if(collider._velocity.y < 0 && contact.normal.y < 0) {
+            yFix = contact.delta.y < yFix ? contact.delta.y : yFix;
+          }
+          else if(collider._velocity.y > 0 && contact.normal.y > 0) {
+            yFix = contact.delta.y > yFix ? contact.delta.y : yFix;
+          }
+
+        }
+      });
+
+      collider._AABB.pos.x -= xFix;
+      collider._AABB.pos.y -= yFix;
+
+      this._placeInGrid(collider);
+
+      // reset velocity for next round
+      collider._velocity.x = 0;
+      collider._velocity.y = 0;
     }, this);
 
-    // assume no dynamic colliders next update for performance
-    this._dynamicColliders = [];
+    // third pass - return contacts / cleanup
+    collidersHit.forEach(function(c){
+      if(c._collisionCallback) {
+        c._collisionCallback(c._contacts);
+
+        // cleanup for next round
+        c._contacts = [];
+      }
+    }, this);
   },
   debugDrawGrid: function(callback) {
     var g, key, x, y, split,
@@ -69,32 +107,22 @@ AXIS.World.prototype = {
     }
   },
   debugDrawColliders: function(callback) {
-    var x, y;
+    var x, y, cX, cY, w, h, isDyn;
 
     this._colliders.forEach(function(c){
-      x = c._position.x;
-      y = c._position.y;
+      x = c._AABB.pos.x - c._AABB.half.x;
+      y = c._AABB.pos.y - c._AABB.half.y;
+      cX = x + c._AABB.half.x;
+      cY = y + c._AABB.half.y;
+      w = c._AABB.half.x*2;
+      h = c._AABB.half.y*2;
+      isDyn = c._isDynamic;
 
-      callback(x, y, c._width, c._height, c._offset.x, c._offset.y);
+      callback(x, y, w, h, cX, cY, isDyn);
     }, this);
   },
-  createCollider: function(x, y, width, height, offsetX, offsetY) {
-    return new AXIS.Collider(this, x, y, width, height, offsetX, offsetY);
-  },
-  _aabbIntersection: function(colliderA, colliderB) {
-    var aX = colliderA._position.x + colliderA._offset.x,
-        aY = colliderA._position.y + colliderA._offset.y,
-        aW = aX + colliderA._width,
-        aH = aY + colliderA._height,
-        bX = colliderB._position.x + colliderB._offset.x,
-        bY = colliderB._position.y + colliderB._offset.y,
-        bW = bX + colliderB._width,
-        bH = bY + colliderB._height;
-
-    return !(bX > aW || bW < aX || bY > aH || bH < aY);
-  },
-  _setDynamicCollider: function(collider) {
-    this._dynamicColliders.push(collider);
+  createCollider: function(x, y, width, height, isDynamic) {
+    return new AXIS.Collider(this, x, y, width, height, isDynamic);
   },
   _addToGrid: function(x, y, collider) {
     var key = 'x'+x+'y'+y;
@@ -112,10 +140,10 @@ AXIS.World.prototype = {
     var gKey, keyX, keyY,
         x = 0,
         y = 0,
-        posX = collider._position.x + collider._offset.x,
-        posY = collider._position.y + collider._offset.y,
-        cWidth = collider._width,
-        cHeight = collider._height,
+        posX = collider._AABB.pos.x - collider._AABB.half.x,
+        posY = collider._AABB.pos.y - collider._AABB.half.y,
+        cWidth = collider._AABB.half.x * 2,
+        cHeight = collider._AABB.half.y * 2,
         cellSize = this._cellSize;
 
     // delete from last main grid position

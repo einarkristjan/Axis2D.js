@@ -1,0 +1,3 @@
+[submodule "intersect"]
+	path = intersect
+	url = https://github.com/noonat/intersect.git

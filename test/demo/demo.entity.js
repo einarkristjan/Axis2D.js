@@ -5,6 +5,8 @@ DEMO.Entity = function(world, x, y, zIndex) {
 
   this.zIndex = zIndex || 0;
 
+  this._isDynamic = false;
+
   // world reference used for components
   this.world = world;
 
@@ -27,12 +29,21 @@ DEMO.Entity.prototype = {
 
     return this;
   },
-  setCollider: function(width, height, offsetX, offsetY) {
+  setDynamic: function(bool) {
+    if(this.collider) {
+      this.collider.setDynamic(bool);
+    }
+    this._isDynamic = bool;
+  },
+  setCollider: function(width, height) {
     var cm = this.world.collisionManager,
         x = this._position.x,
         y = this._position.y,
-        collider = cm.createCollider(x, y, width, height, offsetX, offsetY);
+        w = width,
+        h = height,
+        collider = cm.createCollider(x, y, w, h, false);
 
+    // for access to entities on collisions
     collider.setUserData(this);
 
     this.collider = collider;
@@ -41,6 +52,7 @@ DEMO.Entity.prototype = {
   },
   setLoop: function(script) {
     this._loop = script;
+    this.setDynamic(true);
 
     return this;
   },
@@ -48,11 +60,13 @@ DEMO.Entity.prototype = {
     var entity = this;
 
     function entityCallback(colliders) {
-      var entities = colliders.map(function(collider){
-        return collider.getUserData();
+      var hits = colliders.map(function(hit){
+        // add entity for quick access in callback
+        hit.entity = hit.collider.getUserData();
+        return hit;
       });
 
-      callback.call(entity, entities);
+      callback.call(entity, hits);
     }
 
     if(this.collider) {
