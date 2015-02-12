@@ -17,7 +17,8 @@ DEMO.EntityManager.prototype = {
       collider = entity.collider;
 
       if(collider) {
-        entity._position.set(collider._AABB.pos.x, collider._AABB.pos.y);
+        entity._position.x = collider._AABB.pos.x;
+        entity._position.y = collider._AABB.pos.y;
       }
 
       if(loop) {

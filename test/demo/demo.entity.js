@@ -1,7 +1,10 @@
 var DEMO = DEMO || {};
 
 DEMO.Entity = function(world, x, y, zIndex) {
-  this._position = new DEMO.Vector2(x || 0, y || 0);
+  this._position = {
+    x: x || 0,
+    y: y || 0
+  };
 
   this.zIndex = zIndex || 0;
 

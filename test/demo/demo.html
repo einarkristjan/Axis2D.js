@@ -42,8 +42,8 @@
   <script src="../../src/axis.world.js"></script>
   <script src="../../src/axis.collider.js"></script>
 
-  <script src="demo.vector2.js"></script>
   <script src="demo.world.js"></script>
+  <script src="demo.inputs.js"></script>
   <script src="demo.canvasrenderer.js"></script>
   <script src="demo.entitymanager.js"></script>
   <script src="demo.entity.js"></script>
@@ -96,23 +96,43 @@
       .setCollider(100, 100)
       .setUserData({
         foo: 123,
+        speed: 10,
         bar: function() {
           return this.foo;
         }
       })
       .setLoop(function() {
-        if(this.world._frameCount === 50) {
-          this.moveTo(100, 100);
-          console.log(this.userData.bar());
+        var dirX = 0,
+            dirY = 0;
+
+        if(DEMO.inputs.key['87'] || DEMO.inputs.key['38']) {
+          dirY = -1;
+        }
+        else if(DEMO.inputs.key['83'] || DEMO.inputs.key['40']) {
+          dirY = 1;
         }
 
-        if(this.world._frameCount === 100) {
-          this.moveTo(290, 230);
+        if(DEMO.inputs.key['65'] || DEMO.inputs.key['37']) {
+          dirX = -1;
+        }
+        else if(DEMO.inputs.key['68'] || DEMO.inputs.key['39']) {
+          dirX = 1;
+        }
+
+        dirX *= this.userData.speed;
+        dirY *= this.userData.speed;
+
+        this.moveTo(this._position.x + dirX, this._position.y + dirY);
+
+        if(this.world._frameCount === 50) {
+          this.moveTo(420, 268);
         }
       })
       .onCollision(function(hits){
         console.log(hits);
       });
+
+
 
   (function loop() {
     requestAnimFrame(loop);
