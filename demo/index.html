@@ -37,10 +37,10 @@
     })();
   </script>
 
-  <script src="../../intersect/intersect.js"></script>
-  <script src="../../src/axis.js"></script>
-  <script src="../../src/axis.world.js"></script>
-  <script src="../../src/axis.collider.js"></script>
+  <script src="../intersect/intersect.js"></script>
+  <script src="../src/axis.js"></script>
+  <script src="../src/axis.world.js"></script>
+  <script src="../src/axis.collider.js"></script>
 
   <script src="demo.world.js"></script>
   <script src="demo.inputs.js"></script>
@@ -111,7 +111,6 @@
         else if(DEMO.inputs.key['83'] || DEMO.inputs.key['40']) {
           dirY = 1;
         }
-
         if(DEMO.inputs.key['65'] || DEMO.inputs.key['37']) {
           dirX = -1;
         }
@@ -125,7 +124,7 @@
         this.moveTo(this._position.x + dirX, this._position.y + dirY);
 
         if(this.world._frameCount === 50) {
-          this.moveTo(420, 268);
+          this.moveTo(270, 258);
         }
       })
       .onCollision(function(hits){

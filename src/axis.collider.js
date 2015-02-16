@@ -13,6 +13,8 @@ AXIS.Collider = function(axisWorld, x, y, width, height, isDynamic) {
 
   this._delta = new intersect.Point(0, 0);
 
+  this._collisionType = 'slide';
+
   this._positionInGridKeys = [];
   this._contacts = [];
 
@@ -73,6 +75,9 @@ AXIS.Collider.prototype = {
     else {
       dcs.splice(dcs.indexOf(this), 1);
     }
+  },
+  setCollisionType: function(type) {
+    this._collisionType = type;
   },
   setUserData: function(data) {
     this._userData = data;
