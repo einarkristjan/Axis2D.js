@@ -29,7 +29,7 @@ AXIS.Collider = function(axisWorld, x, y, width, height, isDynamic) {
 };
 
 AXIS.Collider.prototype = {
-  setPosition: function(x, y) {
+  moveTo: function(x, y) {
     var hW = this._AABB.half.x,
         hH = this._AABB.half.y,
         posX = this._AABB.pos.x,
@@ -63,7 +63,9 @@ AXIS.Collider.prototype = {
     this._AABB.half.x = width/2;
     this._AABB.half.y = height/2;
 
-    this._axisWorld._placeInGrid(this);
+    if(!this._delta.x || !this._delta.y) {
+      this._axisWorld._placeInGrid(this);
+    }
   },
   setDynamic: function(bool) {
     var dcs = this._axisWorld._dynamicColliders;

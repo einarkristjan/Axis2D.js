@@ -21,7 +21,7 @@ DEMO.Entity = function(world, x, y, zIndex) {
 DEMO.Entity.prototype = {
   moveTo: function(x, y) {
     if(this.collider) {
-      this.collider.setPosition(x, y);
+      this.collider.moveTo(x, y);
     }
     else {
       this._position.set(x, y);

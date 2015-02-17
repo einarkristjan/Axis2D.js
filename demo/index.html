@@ -92,11 +92,11 @@
     ]);
 
   axisWorld
-    .createEntity(123, 121)
+    .createEntity(160, 160)
       .setCollider(100, 100)
       .setUserData({
         foo: 123,
-        speed: 10,
+        speed: 15,
         bar: function() {
           return this.foo;
         }
@@ -130,8 +130,6 @@
       .onCollision(function(hits){
         console.log(hits);
       });
-
-
 
   (function loop() {
     requestAnimFrame(loop);
