@@ -14,6 +14,7 @@ DEMO.World = function(params) {
 
   if(!params.collisionManager) {
     this.collisionManager = new AXIS.World(this.cellSize, this);
+    this.debugDraw = this.collisionManager.createDebugDraw();
   }
 
   if(!params.entityManager) {
@@ -22,47 +23,46 @@ DEMO.World = function(params) {
 };
 
 DEMO.World.prototype = {
+  createEntity: function(x, y, z) {
+    return new DEMO.Entity(this, x, y, z);
+  },
   update: function() {
     this.entityManager.update();
     this._frameCount++;
   },
   draw: function() {
-    var r = this.renderer,
-        cellSize = this.cellSize;
+    var renderer = this.renderer;
 
-    if(r && this.debug) {
+    renderer.setFont('Arial', this.cellSize/4, 'center', 'middle');
 
-      this.collisionManager.debugDrawColliders(
-        function(x, y, width, height, centerX, centerY, isDynamic) {
-          r.setColor(255, 0, 0, 0.3);
-          if(isDynamic) {
-            r.setColor(0, 255, 0, 0.3);
-          }
-          r.fillRect(x, y, width, height);
-
-          r.setColor(255, 0, 0);
-          if(isDynamic) {
-            r.setColor(0, 255, 0);
-          }
-          r.strokeCircle(centerX, centerY, cellSize/4);
-          r.strokeRect(x, y, width, height);
-        }
-      );
-
-      r.setFont('Arial', this.cellSize/4, 'center', 'middle');
-      r.setColor(150, 150, 150);
-
-      this.collisionManager.debugDrawGrid(
+    if(renderer && this.debug) {
+      renderer.setColor(175, 175, 175);
+      this.debugDraw.getGrid(
         function(x, y, width, height, colliderCount) {
-          r.fillText(colliderCount, x + width/2, y + height/2);
-          r.strokeRect(x, y, width, height);
+          renderer.fillText(colliderCount, x + width/2, y + height/2);
+          renderer.strokeRect(x, y, width, height);
         }
       );
 
+      this.debugDraw.getColliders(
+        function(x, y, width, height, isDynamic, isSensor) {
+          var r = isDynamic ? 0 : 255,
+              g = isDynamic ? 255 : 0,
+              b = isDynamic ? 0: 0;
+
+          if(isSensor) {
+            g = 255;
+            b = 255;
+          }
+
+          renderer.setColor(r, g, b, 0.25);
+          renderer.fillRect(x, y, width, height);
+
+          renderer.setColor(r, g, b);
+          renderer.strokeRect(x, y, width, height);
+        }
+      );
     }
-  },
-  createEntity: function(x, y, z) {
-    return new DEMO.Entity(this, x, y, z);
   },
   createCollisionMap: function(map, offsetX, offsetY) {
     offsetX = offsetX || 0;

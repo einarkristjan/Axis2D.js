@@ -32,19 +32,17 @@ DEMO.Entity.prototype = {
 
     return this;
   },
-  setDynamic: function(bool) {
-    if(this.collider) {
-      this.collider.setDynamic(bool);
-    }
-    this._isDynamic = bool;
-  },
-  setCollider: function(width, height) {
+  setCollider: function(width, height, sensor) {
     var cm = this.world.collisionManager,
         x = this._position.x,
         y = this._position.y,
         w = width,
         h = height,
-        collider = cm.createCollider(x, y, w, h, false);
+        collider = cm.createCollider(x, y, w, h);
+
+    if(sensor) {
+      collider.setSensor(true);
+    }
 
     // for access to entities on collisions
     collider.setUserData(this);
@@ -55,7 +53,6 @@ DEMO.Entity.prototype = {
   },
   setLoop: function(script) {
     this._loop = script;
-    this.setDynamic(true);
 
     return this;
   },

@@ -41,6 +41,7 @@
   <script src="../src/axis.js"></script>
   <script src="../src/axis.world.js"></script>
   <script src="../src/axis.collider.js"></script>
+  <script src="../src/axis.debugdraw.js"></script>
 
   <script src="demo.world.js"></script>
   <script src="demo.inputs.js"></script>
@@ -82,13 +83,13 @@
     .createCollisionMap([
       [1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1],
       [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-      [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1],
-      [0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0],
-      [0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0],
+      [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
       [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
       [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-      [1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1]
+      [1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1]
     ]);
 
   axisWorld
@@ -124,11 +125,48 @@
         this.moveTo(this._position.x + dirX, this._position.y + dirY);
 
         if(this.world._frameCount === 50) {
-          this.moveTo(270, 258);
+          this.moveTo(width, height);
         }
       })
       .onCollision(function(hits){
-        console.log(hits);
+        console.log('player', hits);
+      });
+
+  axisWorld
+    .createEntity(width/2, height/2)
+      .setCollider(120, 100, true)
+      .setUserData({
+        left: true
+      })
+      .setLoop(function(){
+        /*
+        var xSpeed = 0;
+
+        if(this._position.x < 250) {
+          this.userData.left = false;
+        }
+        else if(this._position.x > width - 250) {
+          this.userData.left = true;
+        }
+
+        xSpeed = this.userData.left ? -2 : 2;
+
+        this.moveTo(this._position.x + xSpeed, this._position.y);
+        */
+
+        /*
+        if(this.world._frameCount % 500 === 0) {
+          if(this.collider.isSensor()) {
+            this.collider.setSensor(false);
+          }
+          else {
+            this.collider.setSensor(true);
+          }
+        }
+        */
+      })
+      .onCollision(function(hits){
+        console.log('other', hits);
       });
 
   (function loop() {

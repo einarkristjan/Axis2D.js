@@ -1,4 +1,4 @@
-AXIS.Collider = function(axisWorld, x, y, width, height, isDynamic) {
+AXIS.Collider = function(axisWorld, x, y, width, height) {
   if(!axisWorld) {
     throw TypeError('axisWorld not defined');
   }
@@ -21,10 +21,10 @@ AXIS.Collider = function(axisWorld, x, y, width, height, isDynamic) {
   this._userData = undefined;
   this._collisionCallback = undefined;
 
-  this._isDynamic = isDynamic || false;
-  this.setDynamic(this._isDynamic);
+  this._isDynamic = false;
+  this._isSensor = false;
 
-  this._axisWorld._placeInGrid(this);
+  this._axisWorld._placeColliderInGrid(this);
   this._axisWorld._colliders.push(this);
 };
 
@@ -51,35 +51,43 @@ AXIS.Collider.prototype = {
       this._AABB.half.x = Math.abs(this._delta.x) / 2 + hW;
       this._AABB.half.y = Math.abs(this._delta.y) / 2 + hH;
 
-      this._axisWorld._placeInGrid(this);
+      this._axisWorld._placeColliderInGrid(this);
 
       this._AABB.pos.x = posX;
       this._AABB.pos.y = posY;
       this._AABB.half.x = hW;
       this._AABB.half.y = hH;
+
+      this._setAsDynamic();
     }
   },
-  setSize: function(width, height) {
+  resize: function(width, height) {
     this._AABB.half.x = width/2;
     this._AABB.half.y = height/2;
 
     if(!this._delta.x || !this._delta.y) {
-      this._axisWorld._placeInGrid(this);
+      this._axisWorld._placeColliderInGrid(this);
     }
-  },
-  setDynamic: function(bool) {
-    var dcs = this._axisWorld._dynamicColliders;
-    this._isDynamic = bool;
 
-    if(bool) {
-      dcs.push(this);
-    }
-    else {
-      dcs.splice(dcs.indexOf(this), 1);
-    }
+    this._setAsDynamic();
+  },
+  getDelta: function() {
+    return this._delta;
+  },
+  setSensor: function(bool) {
+    this._isSensor = bool;
+  },
+  isSensor: function() {
+    return this._isSensor;
+  },
+  isDynamic: function() {
+    return this._isDynamic;
   },
   setCollisionType: function(type) {
     this._collisionType = type;
+  },
+  getCollisionType: function() {
+    return this._collisionType;
   },
   setUserData: function(data) {
     this._userData = data;
@@ -89,5 +97,17 @@ AXIS.Collider.prototype = {
   },
   setCollisionCallback: function(callback) {
     this._collisionCallback = callback;
+  },
+  getWidth: function() {
+    return this._AABB.half.x * 2;
+  },
+  getHeight: function() {
+    return this._AABB.half.y * 2;
+  },
+  _setAsDynamic: function() {
+    if(!this._isDynamic) {
+      this._isDynamic = true;
+      this._axisWorld._dynamicColliders.push(this);
+    }
   }
 };
