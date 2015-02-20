@@ -4,9 +4,11 @@ AXIS.World = function(cellSize) {
   this._grid = {};
 
   this._colliders = [];
+
+  // dynamic colliders are colliders that have moved or be resized
   this._dynamicColliders = [];
 
-  this._collidersHit = [];
+  this._collidersHitPerUpdate = [];
 };
 
 AXIS.World.prototype = {
@@ -30,31 +32,21 @@ AXIS.World.prototype = {
         }, this);
       }, this);
 
-      if(collider._isSensor) {
-        collider._AABB.pos.x += collider._delta.x;
-        collider._AABB.pos.y += collider._delta.y;
-
-        otherColliders.forEach(function(otherCollider){
-          this._addToCollidersHit(collider, otherCollider);
-        }, this);
-      }
-      else {
-        this._sweepCollisionsFixes(collider, otherColliders);
-      }
+      this._sweepCollisionsFixes(collider, otherColliders);
 
       this._placeColliderInGrid(collider);
 
     }, this);
 
-    // second pass - return contacts / cleanup
-    this._collidersHit.forEach(function(c){
+    // second pass - return contacts for static and dynamic
+    this._collidersHitPerUpdate.forEach(function(c){
       if(c._collisionCallback) {
         c._collisionCallback(c._contacts);
         // cleanup for next round
         c._contacts = [];
       }
     }, this);
-    this._collidersHit = [];
+    this._collidersHitPerUpdate = [];
 
     // dynamic clean ups
     this._dynamicColliders.forEach(function(c){
@@ -70,7 +62,7 @@ AXIS.World.prototype = {
         ocs = otherColliders,
         sweep = this._sweepInto(collider, ocs);
 
-    if(sweep.hit) {
+    if(sweep.hit && !collider._isSensor) {
       cType = collider._collisionType;
 
       // first contact - add a little to the delta for collision callbacks
@@ -79,7 +71,7 @@ AXIS.World.prototype = {
 
       // add first hit contacts
       ocs.forEach(function(otherCollider){
-        this._addToCollidersHit(collider, otherCollider);
+        this._addTocollidersHitPerUpdate(collider, otherCollider);
       }, this);
 
       // fix position before sweeping again (push away with fraction)
@@ -118,7 +110,7 @@ AXIS.World.prototype = {
 
           // add slide-end contacts
           ocs.forEach(function(otherCollider){
-            this._addToCollidersHit(collider, otherCollider);
+            this._addTocollidersHitPerUpdate(collider, otherCollider);
           }, this);
 
           // fix position (push away from collider with fraction)
@@ -127,13 +119,13 @@ AXIS.World.prototype = {
         }
       }
     }
-    // hit nothing
+    // hit nothing or is a sensor
     else {
       collider._AABB.pos.x += collider._delta.x;
       collider._AABB.pos.y += collider._delta.y;
     }
   },
-  _addToCollidersHit: function(colliderA, colliderB) {
+  _addTocollidersHitPerUpdate: function(colliderA, colliderB) {
     var hitA,
         hitB = colliderA._AABB.intersectAABB(colliderB._AABB);
 
@@ -144,28 +136,31 @@ AXIS.World.prototype = {
       hitA.collider = colliderB;
       hitB.collider = colliderA;
 
-      colliderA._contacts.push(hitA);
-      colliderB._contacts.push(hitB);
+      colliderA._addContact(hitA);
+      colliderB._addContact(hitB);
 
-      if(this._collidersHit.indexOf(colliderA) === -1) {
-        this._collidersHit.push(colliderA);
+      if(this._collidersHitPerUpdate.indexOf(colliderA) === -1) {
+        this._collidersHitPerUpdate.push(colliderA);
       }
 
-      if(this._collidersHit.indexOf(colliderB) === -1) {
-        this._collidersHit.push(colliderB);
+      if(this._collidersHitPerUpdate.indexOf(colliderB) === -1) {
+        this._collidersHitPerUpdate.push(colliderB);
       }
     }
   },
   _sweepInto: function(collider, otherColliders) {
     var sweep,
+        cAABB = collider._AABB,
+        cDelta = collider._delta,
         nearest = new intersect.Sweep();
 
     nearest.time = 1;
-    nearest.pos.x = collider._AABB.pos.x + collider._delta.x;
-    nearest.pos.y = collider._AABB.pos.y + collider._delta.y;
+    nearest.pos.x = cAABB.pos.x + cDelta.x;
+    nearest.pos.y = cAABB.pos.y + cDelta.y;
 
     otherColliders.forEach(function(otherCollider) {
-      sweep = otherCollider._AABB.sweepAABB(collider._AABB, collider._delta);
+      sweep = otherCollider._AABB.sweepAABB(cAABB, cDelta);
+
       if (sweep.time < nearest.time) {
         if(otherCollider._isSensor) {
           // TODO: better way to create contacts
