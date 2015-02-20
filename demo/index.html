@@ -139,7 +139,6 @@
         left: true
       })
       .setLoop(function(){
-        /*
         var xSpeed = 0;
 
         if(this._position.x < 250) {
@@ -152,9 +151,7 @@
         xSpeed = this.userData.left ? -2 : 2;
 
         this.moveTo(this._position.x + xSpeed, this._position.y);
-        */
 
-        /*
         if(this.world._frameCount % 500 === 0) {
           if(this.collider.isSensor()) {
             this.collider.setSensor(false);
@@ -163,7 +160,6 @@
             this.collider.setSensor(true);
           }
         }
-        */
       })
       .onCollision(function(hits){
         console.log('other', hits);
