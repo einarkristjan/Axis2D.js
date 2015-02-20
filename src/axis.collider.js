@@ -26,6 +26,9 @@ AXIS.Collider = function(axisWorld, x, y, width, height) {
 
   this._axisWorld._placeColliderInGrid(this);
   this._axisWorld._colliders.push(this);
+
+  // find collisions on create
+  this._setAsDynamic();
 };
 
 AXIS.Collider.prototype = {
@@ -109,5 +112,16 @@ AXIS.Collider.prototype = {
       this._isDynamic = true;
       this._axisWorld._dynamicColliders.push(this);
     }
+  },
+  _addContact: function(contact) {
+    var needle = false;
+    for(var i = 0; i < this._contacts.length; i++) {
+      // prevent from adding another hit to contacts that contains same collider
+      if(contact.collider === this._contacts[i].collider) {
+        needle = true;
+        return;
+      }
+    }
+    this._contacts.push(contact);
   }
 };
