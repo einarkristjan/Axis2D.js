@@ -58,25 +58,12 @@ Axis2D.World.prototype = {
   },
   _sweepCollisionsFixes: function(collider, otherColliders) {
     var cType,
-        pushFrac = 1.001,
-        ocs = otherColliders,
-        sweep = this._sweepInto(collider, ocs);
+        sweep = this._sweepInto(collider, otherColliders);
 
     if(sweep.hit && !collider._isSensor) {
       cType = collider._collisionType;
 
-      // first contact - add a little to the delta for collision callbacks
-      collider._AABB.pos.x += sweep.hit.delta.x - sweep.hit.normal.x;
-      collider._AABB.pos.y += sweep.hit.delta.y - sweep.hit.normal.y;
-
-      // add first hit contacts
-      ocs.forEach(function(otherCollider){
-        this._addTocollidersHitPerUpdate(collider, otherCollider);
-      }, this);
-
-      // fix position before sweeping again (push away with fraction)
-      collider._AABB.pos.x += sweep.hit.normal.x * pushFrac;
-      collider._AABB.pos.y += sweep.hit.normal.y * pushFrac;
+      this._sweepMoveFowardBackCheck(sweep, collider, otherColliders);
 
       if(cType === 'slide' || cType === 'bounce') {
         if(cType === 'slide') {
@@ -100,22 +87,10 @@ Axis2D.World.prototype = {
         }
 
         // sweep again (slide or bounce)
-        sweep = this._sweepInto(collider, ocs);
+        sweep = this._sweepInto(collider, otherColliders);
 
         if(sweep.hit) {
-          // set first hit position before sweeping again
-          // add a little to the delta for collision callbacks
-          collider._AABB.pos.x += sweep.hit.delta.x - sweep.hit.normal.x;
-          collider._AABB.pos.y += sweep.hit.delta.y - sweep.hit.normal.y;
-
-          // add slide-end contacts
-          ocs.forEach(function(otherCollider){
-            this._addTocollidersHitPerUpdate(collider, otherCollider);
-          }, this);
-
-          // fix position (push away from collider with fraction)
-          collider._AABB.pos.x += sweep.hit.normal.x * pushFrac;
-          collider._AABB.pos.y += sweep.hit.normal.y * pushFrac;
+          this._sweepMoveFowardBackCheck(sweep, collider, otherColliders);
         }
       }
     }
@@ -125,7 +100,7 @@ Axis2D.World.prototype = {
       collider._AABB.pos.y += collider._delta.y;
     }
   },
-  _addTocollidersHitPerUpdate: function(colliderA, colliderB) {
+  _addToCollidersHitPerUpdate: function(colliderA, colliderB) {
     var hitA,
         hitB = colliderA._AABB.intersectAABB(colliderB._AABB);
 
@@ -148,6 +123,32 @@ Axis2D.World.prototype = {
       }
     }
   },
+  _sweepMoveFowardBackCheck: function(sweep, collider, otherColliders) {
+    var pushFrac = 1.001;
+    // set first hit position before sweeping again
+    // add a little to the delta for collision callbacks
+    collider._AABB.pos.x += sweep.hit.delta.x - sweep.hit.normal.x;
+    collider._AABB.pos.y += sweep.hit.delta.y - sweep.hit.normal.y;
+
+    // add slide-end contacts
+    otherColliders.forEach(function(otherCollider){
+      this._addToCollidersHitPerUpdate(collider, otherCollider);
+    }, this);
+
+    // fix position (push away from collider with fraction)
+    collider._AABB.pos.x += sweep.hit.normal.x * pushFrac;
+    collider._AABB.pos.y += sweep.hit.normal.y * pushFrac;
+  },
+  _sweepSensorMoveForwardBackCheck: function(sweep, colliderA, colliderB) {
+    colliderA._AABB.pos.x += sweep.hit.delta.x - sweep.hit.normal.x;
+    colliderA._AABB.pos.y += sweep.hit.delta.y - sweep.hit.normal.y;
+
+    this._addToCollidersHitPerUpdate(colliderA, colliderB);
+
+    // move back for next move
+    colliderA._AABB.pos.x -= sweep.hit.delta.x - sweep.hit.normal.x;
+    colliderA._AABB.pos.y -= sweep.hit.delta.y - sweep.hit.normal.y;
+  },
   _sweepInto: function(collider, otherColliders) {
     var sweep,
         cAABB = collider._AABB,
@@ -158,15 +159,22 @@ Axis2D.World.prototype = {
     nearest.pos.x = cAABB.pos.x + cDelta.x;
     nearest.pos.y = cAABB.pos.y + cDelta.y;
 
-    otherColliders.forEach(function(otherCollider) {
-      sweep = otherCollider._AABB.sweepAABB(cAABB, cDelta);
+    otherColliders.forEach(function(oc) {
+      sweep = oc._AABB.sweepAABB(cAABB, cDelta);
 
-      if (sweep.time < nearest.time) {
-        if(otherCollider._isSensor) {
-          // TODO: better way to create contacts
+      if(sweep.hit) {
+        // sensor check
+        if(collider._isSensor) {
+          this._sweepSensorMoveForwardBackCheck(sweep, collider, oc);
         }
-        else {
-          nearest = sweep;
+        else if (sweep.time < nearest.time) {
+          // other sensor check
+          if(oc._isSensor) {
+            this._sweepSensorMoveForwardBackCheck(sweep, collider, oc);
+          }
+          else {
+            nearest = sweep;
+          }
         }
       }
     }, this);
