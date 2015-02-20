@@ -1,4 +1,4 @@
-AXIS.Collider = function(axisWorld, x, y, width, height) {
+Axis2D.Collider = function(axisWorld, x, y, width, height) {
   if(!axisWorld) {
     throw TypeError('axisWorld not defined');
   }
@@ -31,7 +31,7 @@ AXIS.Collider = function(axisWorld, x, y, width, height) {
   this._setAsDynamic();
 };
 
-AXIS.Collider.prototype = {
+Axis2D.Collider.prototype = {
   moveTo: function(x, y) {
     var hW = this._AABB.half.x,
         hH = this._AABB.half.y,

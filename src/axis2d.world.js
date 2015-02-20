@@ -1,4 +1,4 @@
-AXIS.World = function(cellSize) {
+Axis2D.World = function(cellSize) {
   this._cellSize = cellSize || 64;
 
   this._grid = {};
@@ -11,12 +11,12 @@ AXIS.World = function(cellSize) {
   this._collidersHitPerUpdate = [];
 };
 
-AXIS.World.prototype = {
+Axis2D.World.prototype = {
   createCollider: function(x, y, width, height, isDynamic) {
-    return new AXIS.Collider(this, x, y, width, height, isDynamic);
+    return new Axis2D.Collider(this, x, y, width, height, isDynamic);
   },
   createDebugDraw: function() {
-    return new AXIS.DebugDraw(this);
+    return new Axis2D.DebugDraw(this);
   },
   update: function() {
     // first pass - sweep dynamic colliders into other colliders + add contacts

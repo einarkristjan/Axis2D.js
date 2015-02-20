@@ -1,4 +1,4 @@
-AXIS.DebugDraw = function(axisWorld) {
+Axis2D.DebugDraw = function(axisWorld) {
   if(!axisWorld) {
     throw TypeError('axisWorld not defined');
   }
@@ -6,7 +6,7 @@ AXIS.DebugDraw = function(axisWorld) {
   this._axisWorld = axisWorld;
 };
 
-AXIS.DebugDraw.prototype = {
+Axis2D.DebugDraw.prototype = {
   getColliders: function(callback) {
     var x, y, cX, cY, w, h,
         world = this._axisWorld;

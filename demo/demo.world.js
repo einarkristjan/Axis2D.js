@@ -13,7 +13,7 @@ DEMO.World = function(params) {
   this.collisionManager = params.collisionManager;
 
   if(!params.collisionManager) {
-    this.collisionManager = new AXIS.World(this.cellSize, this);
+    this.collisionManager = new Axis2D.World(this.cellSize, this);
     this.debugDraw = this.collisionManager.createDebugDraw();
   }
 
