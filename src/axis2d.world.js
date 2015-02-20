@@ -19,7 +19,7 @@ Axis2D.World.prototype = {
     return new Axis2D.DebugDraw(this);
   },
   update: function() {
-    // first pass - sweep dynamic colliders into other colliders + add contacts
+    // first pass - sweep dynamic colliders into other colliders + add hits
     this._dynamicColliders.forEach(function(collider){
       var otherColliders = [];
 
@@ -38,12 +38,12 @@ Axis2D.World.prototype = {
 
     }, this);
 
-    // second pass - return contacts for static and dynamic
+    // second pass - return hits for static and dynamic
     this._collidersHitPerUpdate.forEach(function(c){
       if(c._collisionCallback) {
-        c._collisionCallback(c._contacts);
+        c._collisionCallback(c._hits);
         // cleanup for next round
-        c._contacts = [];
+        c._hits = [];
       }
     }, this);
     this._collidersHitPerUpdate = [];
@@ -111,8 +111,8 @@ Axis2D.World.prototype = {
       hitA.collider = colliderB;
       hitB.collider = colliderA;
 
-      colliderA._addContact(hitA);
-      colliderB._addContact(hitB);
+      colliderA._addHit(hitA);
+      colliderB._addHit(hitB);
 
       if(this._collidersHitPerUpdate.indexOf(colliderA) === -1) {
         this._collidersHitPerUpdate.push(colliderA);
@@ -130,7 +130,6 @@ Axis2D.World.prototype = {
     collider._AABB.pos.x += sweep.hit.delta.x - sweep.hit.normal.x;
     collider._AABB.pos.y += sweep.hit.delta.y - sweep.hit.normal.y;
 
-    // add slide-end contacts
     otherColliders.forEach(function(otherCollider){
       this._addToCollidersHitPerUpdate(collider, otherCollider);
     }, this);

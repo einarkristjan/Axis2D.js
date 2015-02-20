@@ -16,7 +16,7 @@ Axis2D.Collider = function(axisWorld, x, y, width, height) {
   this._collisionType = 'slide';
 
   this._positionInGridKeys = [];
-  this._contacts = [];
+  this._hits = [];
 
   this._userData = undefined;
   this._collisionCallback = undefined;
@@ -113,15 +113,13 @@ Axis2D.Collider.prototype = {
       this._axisWorld._dynamicColliders.push(this);
     }
   },
-  _addContact: function(contact) {
-    var needle = false;
-    for(var i = 0; i < this._contacts.length; i++) {
-      // prevent from adding another hit to contacts that contains same collider
-      if(contact.collider === this._contacts[i].collider) {
-        needle = true;
+  _addHit: function(hit) {
+    for(var i = 0; i < this._hits.length; i++) {
+      // prevent from adding another hit that contains same collider
+      if(hit.collider === this._hits[i].collider) {
         return;
       }
     }
-    this._contacts.push(contact);
+    this._hits.push(hit);
   }
 };
