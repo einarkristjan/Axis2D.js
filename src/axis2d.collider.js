@@ -1,24 +1,29 @@
 Axis2D.Collider = function(axisWorld, x, y, width, height) {
-  if(!axisWorld) {
-    throw TypeError('axisWorld not defined');
-  }
+  Axis2D.typeCheck(axisWorld, 'axisWorld', Axis2D.World);
+  Axis2D.typeCheck(x, 'x', 'Number');
+  Axis2D.typeCheck(y, 'y', 'Number');
+  Axis2D.typeCheck(width, 'width', 'Number');
+  Axis2D.typeCheck(height, 'height', 'Number');
 
   this._axisWorld = axisWorld;
 
   this._AABB = new intersect.AABB({},{});
   this._AABB.pos.x = x || 0;
   this._AABB.pos.y = y || 0;
-  this._AABB.half.x = (width || axisWorld._cellSize - 1) / 2;
-  this._AABB.half.y = (height || axisWorld._cellSize - 1) / 2;
+  this._AABB.half.x = (Math.abs(width) || axisWorld._cellSize - 1) / 2;
+  this._AABB.half.y = (Math.abs(height) || axisWorld._cellSize - 1) / 2;
 
   this._delta = new intersect.Point(0, 0);
 
   this._collisionType = 'slide';
 
+  this._groupName = '';
+  this._groupFilter = [];
+
   this._positionInGridKeys = [];
   this._hits = [];
 
-  this._userData = undefined;
+  this.userData = undefined;
   this._collisionCallback = undefined;
 
   this._isDynamic = false;
@@ -77,7 +82,16 @@ Axis2D.Collider.prototype = {
   getDelta: function() {
     return this._delta;
   },
+  setGroup: function(name) {
+    Axis2D.typeCheck(name, 'name', 'String');
+    this._groupName = name;
+  },
+  setGroupFilter: function(groups) {
+    Axis2D.typeCheck(groups, 'groups', 'Array');
+    this._groupFilter = groups;
+  },
   setSensor: function(bool) {
+    Axis2D.typeCheck(bool, 'bool', 'Boolean');
     this._isSensor = bool;
   },
   isSensor: function() {
@@ -87,18 +101,14 @@ Axis2D.Collider.prototype = {
     return this._isDynamic;
   },
   setCollisionType: function(type) {
+    Axis2D.typeCheck(type, 'type', 'String');
     this._collisionType = type;
   },
   getCollisionType: function() {
     return this._collisionType;
   },
-  setUserData: function(data) {
-    this._userData = data;
-  },
-  getUserData: function() {
-    return this._userData;
-  },
   setCollisionCallback: function(callback) {
+    Axis2D.typeCheck(callback, 'callback', 'Function');
     this._collisionCallback = callback;
   },
   getWidth: function() {

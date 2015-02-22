@@ -1,5 +1,7 @@
-Axis2D.World = function(cellSize) {
-  this._cellSize = cellSize || 64;
+Axis2D.World = function World(cellSize) {
+  Axis2D.typeCheck(cellSize, 'cellSize', 'Number');
+
+  this._cellSize = Math.abs(cellSize) || 64;
 
   this._grid = {};
 
@@ -12,8 +14,8 @@ Axis2D.World = function(cellSize) {
 };
 
 Axis2D.World.prototype = {
-  createCollider: function(x, y, width, height, isDynamic) {
-    return new Axis2D.Collider(this, x, y, width, height, isDynamic);
+  createCollider: function(x, y, width, height) {
+    return new Axis2D.Collider(this, x, y, width, height);
   },
   createDebugDraw: function() {
     return new Axis2D.DebugDraw(this);

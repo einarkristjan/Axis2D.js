@@ -1,13 +1,12 @@
-Axis2D.DebugDraw = function(axisWorld) {
-  if(!axisWorld) {
-    throw TypeError('axisWorld not defined');
-  }
+Axis2D.DebugDraw = function DebugDraw(axisWorld) {
+  Axis2D.typeCheck(axisWorld, 'axisWorld', Axis2D.World);
 
   this._axisWorld = axisWorld;
 };
 
 Axis2D.DebugDraw.prototype = {
   getColliders: function(callback) {
+    Axis2D.typeCheck(callback, 'callback', 'Function');
     var x, y, cX, cY, w, h,
         world = this._axisWorld;
 
@@ -23,6 +22,7 @@ Axis2D.DebugDraw.prototype = {
     }, this);
   },
   getGrid: function(callback) {
+    Axis2D.typeCheck(callback, 'callback', 'Function');
     var g, key, x, y, split,
         world = this._axisWorld,
         cellSize = world._cellSize;
