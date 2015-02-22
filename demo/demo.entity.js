@@ -45,7 +45,7 @@ DEMO.Entity.prototype = {
     }
 
     // for access to entities on collisions
-    collider.setUserData(this);
+    collider.userData = this;
 
     this.collider = collider;
 
@@ -62,7 +62,7 @@ DEMO.Entity.prototype = {
     function entityCallback(hits) {
       var allHits = hits.map(function(hit){
         // add entity for quick access in callback
-        hit.entity = hit.collider.getUserData();
+        hit.entity = hit.collider.userData;
         return hit;
       });
 
