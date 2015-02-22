@@ -151,8 +151,7 @@ Axis2D.World.prototype = {
     colliderA._AABB.pos.y -= sweep.hit.delta.y - sweep.hit.normal.y;
   },
   _sweepInto: function(collider, otherColliders) {
-    var sweep,
-        cAABB = collider._AABB,
+    var cAABB = collider._AABB,
         cDelta = collider._delta,
         nearest = new intersect.Sweep();
 
@@ -161,16 +160,18 @@ Axis2D.World.prototype = {
     nearest.pos.y = cAABB.pos.y + cDelta.y;
 
     otherColliders.forEach(function(oc) {
-      sweep = oc._AABB.sweepAABB(cAABB, cDelta);
+      var sweep = oc._AABB.sweepAABB(cAABB, cDelta),
+          colFilterFound = oc._groupFilter.indexOf(collider._groupName) !== -1,
+          ocFilterFound = collider._groupFilter.indexOf(oc._groupName) !== -1;
 
       if(sweep.hit) {
-        // sensor check
-        if(collider._isSensor) {
+        // sensor/filter check
+        if(collider._isSensor || colFilterFound) {
           this._sweepSensorMoveForwardBackCheck(sweep, collider, oc);
         }
         else if (sweep.time < nearest.time) {
-          // other sensor check
-          if(oc._isSensor) {
+          // other sensor/filter check
+          if(oc._isSensor || ocFilterFound) {
             this._sweepSensorMoveForwardBackCheck(sweep, collider, oc);
           }
           else {

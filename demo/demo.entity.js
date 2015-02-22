@@ -32,6 +32,14 @@ DEMO.Entity.prototype = {
 
     return this;
   },
+  setColliderGroup: function(groupName, groupFilter) {
+    if(this.collider) {
+      this.collider.setGroup(groupName);
+      this.collider.setGroupFilter(groupFilter);
+    }
+
+    return this;
+  },
   setCollider: function(width, height, sensor) {
     var cm = this.world.collisionManager,
         x = this._position.x,

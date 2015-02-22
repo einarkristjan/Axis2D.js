@@ -95,6 +95,7 @@
   axisWorld
     .createEntity(160, 160)
       .setCollider(100, 100)
+      .setColliderGroup('players', ['enemies'])
       .setUserData({
         foo: 123,
         speed: 15,
@@ -134,7 +135,7 @@
 
   axisWorld
     .createEntity(width/2, height/2)
-      .setCollider(120, 100, true)
+      .setCollider(120, 100)
       .setUserData({
         left: true
       })
@@ -163,6 +164,21 @@
       })
       .onCollision(function(hits){
         console.log('other', hits);
+      });
+
+  axisWorld
+    .createEntity(width - 128, 128)
+      .setCollider(80, 70)
+      .setColliderGroup('enemies', ['players'])
+      .onCollision(function(hits){
+        console.log('enemy', hits);
+      });
+
+  axisWorld
+    .createEntity(width - 128, height - 128)
+      .setCollider(80, 70, true)
+      .onCollision(function(hits){
+        console.log('sensor', hits);
       });
 
   (function loop() {
