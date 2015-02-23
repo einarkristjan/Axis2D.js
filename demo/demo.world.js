@@ -28,6 +28,7 @@ DEMO.World.prototype = {
   },
   update: function() {
     this.entityManager.update();
+    this.collisionManager.update();
     this._frameCount++;
   },
   draw: function() {
@@ -45,15 +46,10 @@ DEMO.World.prototype = {
       );
 
       this.debugDraw.getColliders(
-        function(x, y, width, height, isDynamic, isSensor) {
-          var r = isDynamic ? 0 : 255,
-              g = isDynamic ? 255 : 0,
-              b = isDynamic ? 0: 0;
-
-          if(isSensor) {
-            g = 255;
-            b = 255;
-          }
+        function(x, y, width, height, isSensor) {
+          var r = isSensor ? 255 : 0,
+              g = 255,
+              b = 255;
 
           renderer.setColor(r, g, b, 0.25);
           renderer.fillRect(x, y, width, height);

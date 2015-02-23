@@ -18,7 +18,7 @@ Axis2D.DebugDraw.prototype = {
       w = c._AABB.half.x * 2;
       h = c._AABB.half.y * 2;
 
-      callback(x, y, w, h, c._isDynamic, c._isSensor);
+      callback(x, y, w, h, c._isSensor);
     }, this);
   },
   getGrid: function(callback) {
