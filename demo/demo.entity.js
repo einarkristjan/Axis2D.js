@@ -67,14 +67,14 @@ DEMO.Entity.prototype = {
   onCollision: function(callback) {
     var entity = this;
 
-    function entityCallback(hits) {
+    function entityCallback(hits, touching) {
       var allHits = hits.map(function(hit){
         // add entity for quick access in callback
         hit.entity = hit.collider.userData;
         return hit;
       });
 
-      callback.call(entity, allHits);
+      callback.call(entity, allHits, touching);
     }
 
     if(this.collider) {

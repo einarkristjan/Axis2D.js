@@ -23,6 +23,13 @@ Axis2D.Collider = function(axisWorld, x, y, width, height) {
   this._positionInGridKeys = [];
   this._hits = [];
 
+  this._isTouching = {
+    top: false,
+    left: false,
+    right: false,
+    bottom: false
+  };
+
   this.userData = undefined;
   this._collisionCallback = undefined;
 
@@ -79,9 +86,6 @@ Axis2D.Collider.prototype = {
 
     this._setAsDynamic();
   },
-  getDelta: function() {
-    return this._delta;
-  },
   setGroup: function(name) {
     Axis2D.typeCheck(name, 'name', 'String');
     this._groupName = name;
@@ -97,9 +101,6 @@ Axis2D.Collider.prototype = {
   isSensor: function() {
     return this._isSensor;
   },
-  isDynamic: function() {
-    return this._isDynamic;
-  },
   setCollisionType: function(type) {
     Axis2D.typeCheck(type, 'type', 'String');
     this._collisionType = type;
@@ -110,6 +111,12 @@ Axis2D.Collider.prototype = {
   setCollisionCallback: function(callback) {
     Axis2D.typeCheck(callback, 'callback', 'Function');
     this._collisionCallback = callback;
+  },
+  getX: function() {
+    return this._AABB.pos.x;
+  },
+  getY: function() {
+    return this._AABB.pos.y;
   },
   getWidth: function() {
     return this._AABB.half.x * 2;

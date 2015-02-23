@@ -129,8 +129,9 @@
           this.moveTo(width, height);
         }
       })
-      .onCollision(function(hits){
-        console.log('player', hits);
+      .onCollision(function(hits, touching){
+        this.userData.isTouching = touching;
+        console.log('player', touching, hits);
       });
 
   axisWorld
@@ -153,7 +154,7 @@
 
         this.moveTo(this._position.x + xSpeed, this._position.y);
 
-        if(this.world._frameCount % 500 === 0) {
+        if(this.world._frameCount % 250 === 0) {
           if(this.collider.isSensor()) {
             this.collider.setSensor(false);
           }
@@ -162,23 +163,23 @@
           }
         }
       })
-      .onCollision(function(hits){
-        console.log('other', hits);
+      .onCollision(function(hits, touching){
+        console.log('other', touching, hits);
       });
 
   axisWorld
-    .createEntity(width - 128, 128)
+    .createEntity(width - 128, 138)
       .setCollider(80, 70)
       .setColliderGroup('enemies', ['players'])
-      .onCollision(function(hits){
-        console.log('enemy', hits);
+      .onCollision(function(hits, touching){
+        console.log('enemy', touching, hits);
       });
 
   axisWorld
     .createEntity(width - 128, height - 128)
       .setCollider(80, 70, true)
-      .onCollision(function(hits){
-        console.log('sensor', hits);
+      .onCollision(function(hits, touching){
+        console.log('sensor', touching, hits);
       });
 
   (function loop() {

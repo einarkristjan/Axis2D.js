@@ -10,15 +10,13 @@ DEMO.EntityManager.prototype = {
   update: function() {
     var loop, collider;
 
-    this._world.collisionManager.update();
-
     this._entities.forEach(function(entity){
       loop = entity._loop;
       collider = entity.collider;
 
       if(collider) {
-        entity._position.x = collider._AABB.pos.x;
-        entity._position.y = collider._AABB.pos.y;
+        entity._position.x = collider.getX();
+        entity._position.y = collider.getY();
       }
 
       if(loop) {
