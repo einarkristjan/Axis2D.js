@@ -49,32 +49,23 @@ Axis2D.World.prototype = {
       }, this);
 
       this._sweepCollisionsFixes(collider, otherColliders);
-
       this._placeColliderInGrid(collider);
 
+      // cleanups
+      collider._isDynamic = false;
+      collider._delta.x = 0;
+      collider._delta.y = 0;
     }, this);
+    this._dynamicColliders = [];
 
     // second pass - return hits for static and dynamic
     this._collidersHitPerUpdate.forEach(function(c){
+      c._calculateTouches();
       if(c._collisionCallback) {
-        c._collisionCallback(c._hits, c._isTouching);
-        // cleanup for next round
-        c._hits = [];
+        c._collisionCallback(c.getHits(), c.getTouching());
       }
     }, this);
     this._collidersHitPerUpdate = [];
-
-    // dynamic clean ups
-    this._dynamicColliders.forEach(function(c){
-      c._isDynamic = false;
-      c._delta.x = 0;
-      c._delta.y = 0;
-      c._isTouching.top = false;
-      c._isTouching.left = false;
-      c._isTouching.right = false;
-      c._isTouching.bottom = false;
-    }, this);
-    this._dynamicColliders = [];
   },
   _sweepCollisionsFixes: function(collider, otherColliders) {
     var cType,
@@ -84,9 +75,9 @@ Axis2D.World.prototype = {
       cType = collider._collisionType;
 
       this._sweepMoveFowardBackCheck(sweep, collider, otherColliders);
-      this._setTouches(sweep.hit, collider, sweep.hit.collider);
 
       if(cType === 'slide' || cType === 'bounce') {
+
         if(cType === 'slide') {
           // undo the normal hit delta before slide
           if(sweep.hit.normal.x) {
@@ -112,7 +103,10 @@ Axis2D.World.prototype = {
 
         if(sweep.hit) {
           this._sweepMoveFowardBackCheck(sweep, collider, otherColliders);
-          this._setTouches(sweep.hit, collider, sweep.hit.collider);
+        }
+        else {
+          collider._AABB.pos.x += collider._delta.x;
+          collider._AABB.pos.y += collider._delta.y;
         }
       }
     }
@@ -121,25 +115,6 @@ Axis2D.World.prototype = {
       collider._AABB.pos.x += collider._delta.x;
       collider._AABB.pos.y += collider._delta.y;
     }
-  },
-  _setTouches: function(hit, colliderA, colliderB) {
-      if(hit.normal.x > 0) {
-        colliderA._isTouching.left = true;
-        colliderB._isTouching.right = true;
-      }
-      else if(hit.normal.x < 0) {
-        colliderA._isTouching.right = true;
-        colliderB._isTouching.left = true;
-      }
-
-      if(hit.normal.y > 0) {
-        colliderA._isTouching.top = true;
-        colliderB._isTouching.bottom = true;
-      }
-      else if(hit.normal.y < 0) {
-        colliderA._isTouching.bottom = true;
-        colliderB._isTouching.top = true;
-      }
   },
   _addToCollidersHitPerUpdate: function(colliderA, colliderB) {
     var hitA,

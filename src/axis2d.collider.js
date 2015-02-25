@@ -17,18 +17,18 @@ Axis2D.Collider = function(axisWorld, x, y, width, height) {
 
   this._collisionType = 'slide';
 
-  this._groupName = '';
-  this._groupFilter = [];
-
-  this._positionInGridKeys = [];
-  this._hits = [];
-
   this._isTouching = {
     top: false,
     left: false,
     right: false,
     bottom: false
   };
+
+  this._groupName = '';
+  this._groupFilter = [];
+
+  this._positionInGridKeys = [];
+  this._hits = [];
 
   this.userData = undefined;
   this._collisionCallback = undefined;
@@ -124,9 +124,61 @@ Axis2D.Collider.prototype = {
   getHeight: function() {
     return this._AABB.half.y * 2;
   },
+  getHits: function() {
+    return this._hits;
+  },
+  getTouching: function() {
+    return this._isTouching;
+  },
+  _calculateTouches: function() {
+    this._hits.forEach(function(hit){
+      var oc = hit.collider;
+      if(!oc.isSensor() && this._groupFilter.indexOf(oc._groupName) === -1) {
+        if(hit.normal.x > 0) {
+          this._isTouching.left = true;
+        }
+        else if(hit.normal.x < 0) {
+          this._isTouching.right = true;
+        }
+        if(hit.normal.y > 0) {
+          this._isTouching.top = true;
+        }
+        else if(hit.normal.y < 0) {
+          this._isTouching.bottom = true;
+        }
+      }
+    }, this);
+  },
   _setAsDynamic: function() {
     if(!this._isDynamic) {
       this._isDynamic = true;
+
+      this._isTouching.top = false;
+      this._isTouching.left = false;
+      this._isTouching.right = false;
+      this._isTouching.bottom = false;
+
+      // remove this collider hit from other colliders
+      this._hits.forEach(function(hit){
+        var oc = hit.collider;
+
+        oc._hits.forEach(function(oh, idx) {
+          if(oh.collider === this) {
+            // TODO: check if still touching before splitting from collider
+
+            oc._isTouching.top = false;
+            oc._isTouching.left = false;
+            oc._isTouching.right = false;
+            oc._isTouching.bottom = false;
+            oc._hits.splice(idx, 1);
+            oc._calculateTouches();
+            return;
+          }
+        }, this);
+      }, this);
+
+      this._hits = [];
+
       this._axisWorld._dynamicColliders.push(this);
     }
   },

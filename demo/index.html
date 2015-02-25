@@ -65,7 +65,7 @@
       height = 576,
       canvas = document.querySelector('canvas'),
       renderer = new DEMO.CanvasRenderer(canvas, width, height),
-      axisWorld = new DEMO.World({
+      demoWorld = new DEMO.World({
         renderer: renderer,
         debug: true
       });
@@ -79,7 +79,7 @@
   // first run
   onWindowResize();
 
-  axisWorld
+  demoWorld
     .createCollisionMap([
       [1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1],
       [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
@@ -92,10 +92,10 @@
       [1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1]
     ]);
 
-  axisWorld
+  demoWorld
     .createEntity(160, 160)
       .setCollider(100, 100)
-      .setColliderGroup('players', ['enemies'])
+      .setColliderGroup('players', ['players'])
       .setUserData({
         foo: 123,
         speed: 15,
@@ -107,16 +107,19 @@
         var dirX = 0,
             dirY = 0;
 
-        if(DEMO.inputs.key['87'] || DEMO.inputs.key['38']) {
+        // console.log(this.collider.getTouching(), this.collider.getHits());
+
+        if(DEMO.inputs.key['38']) {
           dirY = -1;
         }
-        else if(DEMO.inputs.key['83'] || DEMO.inputs.key['40']) {
+        else if(DEMO.inputs.key['40']) {
           dirY = 1;
         }
-        if(DEMO.inputs.key['65'] || DEMO.inputs.key['37']) {
+
+        if(DEMO.inputs.key['37']) {
           dirX = -1;
         }
-        else if(DEMO.inputs.key['68'] || DEMO.inputs.key['39']) {
+        else if(DEMO.inputs.key['39']) {
           dirX = 1;
         }
 
@@ -130,13 +133,12 @@
         }
       })
       .onCollision(function(hits, touching){
-        this.userData.isTouching = touching;
-        console.log('player', touching, hits);
+        // console.log('player1', touching, hits);
       });
 
-  axisWorld
+  demoWorld
     .createEntity(width/2, height/2)
-      .setCollider(120, 100)
+      .setCollider(120, 100, true)
       .setUserData({
         left: true
       })
@@ -164,34 +166,44 @@
         }
       })
       .onCollision(function(hits, touching){
-        console.log('other', touching, hits);
+        // console.log('other', touching, hits);
       });
 
-  axisWorld
+  demoWorld
     .createEntity(width - 128, 138)
       .setCollider(80, 70)
-      .setColliderGroup('enemies', ['players'])
+      .setColliderGroup('players', ['players'])
       .onCollision(function(hits, touching){
-        console.log('enemy', touching, hits);
+        // console.log('player2', touching, hits);
       });
 
-  axisWorld
+  demoWorld
     .createEntity(width - 128, height - 128)
       .setCollider(80, 70, true)
       .onCollision(function(hits, touching){
-        console.log('sensor', touching, hits);
+        // console.log('sensor', touching, hits);
+      });
+
+  demoWorld
+    .createEntity(128, height - 128)
+      .setCollider(80, 70)
+      .setLoop(function(){
+        console.log(this.collider.getTouching(), this.collider.getHits());
+      })
+      .onCollision(function(hits, touching){
+        // console.log('enemy', touching, hits);
       });
 
   (function loop() {
     requestAnimFrame(loop);
 
-    axisWorld.update();
+    demoWorld.update();
 
     // draw background
     renderer.setColor(0, 0, 0);
     renderer.fillRect(0, 0, width, height);
 
-    axisWorld.draw();
+    demoWorld.draw();
   })();
 
 })();
