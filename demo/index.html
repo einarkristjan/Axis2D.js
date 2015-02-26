@@ -133,7 +133,7 @@
         }
       })
       .onCollision(function(hits, touching){
-        // console.log('player1', touching, hits);
+        console.log('player1', touching, hits);
       });
 
   demoWorld
@@ -166,7 +166,7 @@
         }
       })
       .onCollision(function(hits, touching){
-        // console.log('other', touching, hits);
+        console.log('other', touching, hits);
       });
 
   demoWorld
@@ -174,24 +174,24 @@
       .setCollider(80, 70)
       .setColliderGroup('players', ['players'])
       .onCollision(function(hits, touching){
-        // console.log('player2', touching, hits);
+        console.log('player2', touching, hits);
       });
 
   demoWorld
     .createEntity(width - 128, height - 128)
       .setCollider(80, 70, true)
       .onCollision(function(hits, touching){
-        // console.log('sensor', touching, hits);
+        console.log('sensor', touching, hits);
       });
 
   demoWorld
     .createEntity(128, height - 128)
       .setCollider(80, 70)
       .setLoop(function(){
-        console.log(this.collider.getTouching(), this.collider.getHits());
+        // console.log(this.collider.getTouching(), this.collider.getHits());
       })
       .onCollision(function(hits, touching){
-        // console.log('enemy', touching, hits);
+        console.log('enemy', touching, hits);
       });
 
   (function loop() {
