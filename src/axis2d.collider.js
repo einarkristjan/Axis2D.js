@@ -132,8 +132,10 @@ Axis2D.Collider.prototype = {
   },
   _calculateTouches: function() {
     this._hits.forEach(function(hit){
-      var oc = hit.collider;
-      if(!oc.isSensor() && this._groupFilter.indexOf(oc._groupName) === -1) {
+      var oc = hit.collider,
+          notInGroup = this._groupFilter.indexOf(oc._groupName) === -1;
+
+      if(!this._isSensor && !oc.isSensor() && notInGroup) {
         if(hit.normal.x > 0) {
           this._isTouching.left = true;
         }
@@ -163,15 +165,18 @@ Axis2D.Collider.prototype = {
         var oc = hit.collider;
 
         oc._hits.forEach(function(oh, idx) {
+          var sweep;
           if(oh.collider === this) {
-            // TODO: check if still touching before splitting from collider
-
-            oc._isTouching.top = false;
-            oc._isTouching.left = false;
-            oc._isTouching.right = false;
-            oc._isTouching.bottom = false;
-            oc._hits.splice(idx, 1);
-            oc._calculateTouches();
+            // check if next step hits same collider
+            sweep = oc._AABB.sweepAABB(this._AABB, this._delta);
+            if(!sweep.hit) {
+              oc._isTouching.top = false;
+              oc._isTouching.left = false;
+              oc._isTouching.right = false;
+              oc._isTouching.bottom = false;
+              oc._hits.splice(idx, 1);
+              oc._calculateTouches();
+            }
             return;
           }
         }, this);
