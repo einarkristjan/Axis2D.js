@@ -2,11 +2,29 @@ Axis2D.DebugDraw = function DebugDraw(axisWorld) {
   Axis2D.typeCheck(axisWorld, 'axisWorld', Axis2D.World);
 
   this._axisWorld = axisWorld;
+
+  this._colliderCallback = undefined;
+  this._gridCallback = undefined;
 };
 
 Axis2D.DebugDraw.prototype = {
-  getColliders: function(callback) {
+  addColliderCallback: function(callback) {
     Axis2D.typeCheck(callback, 'callback', 'Function');
+    this._colliderCallback = callback;
+  },
+  addGridCallback: function(callback) {
+    Axis2D.typeCheck(callback, 'callback', 'Function');
+    this._gridCallback = callback;
+  },
+  _draw: function() {
+    if(this._colliderCallback) {
+      this._getColliders(this._colliderCallback);
+    }
+    if(this._gridCallback) {
+      this._getGrid(this._gridCallback);
+    }
+  },
+  _getColliders: function(callback) {
     var x, y, cX, cY, w, h,
         world = this._axisWorld;
 
@@ -18,11 +36,10 @@ Axis2D.DebugDraw.prototype = {
       w = c._AABB.half.x * 2;
       h = c._AABB.half.y * 2;
 
-      callback(x, y, w, h, c._isSensor);
+      callback(x, y, w, h, c._collisionType);
     }, this);
   },
-  getGrid: function(callback) {
-    Axis2D.typeCheck(callback, 'callback', 'Function');
+  _getGrid: function(callback) {
     var g, key, x, y, split,
         world = this._axisWorld,
         cellSize = world._cellSize;

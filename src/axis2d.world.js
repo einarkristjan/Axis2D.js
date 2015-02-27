@@ -11,6 +11,8 @@ Axis2D.World = function World(cellSize) {
   this._dynamicColliders = [];
 
   this._collidersHitPerUpdate = [];
+
+  this._debugDraw = undefined;
 };
 
 Axis2D.World.prototype = {
@@ -32,7 +34,14 @@ Axis2D.World.prototype = {
     }
   },
   createDebugDraw: function() {
-    return new Axis2D.DebugDraw(this);
+    var d = new Axis2D.DebugDraw(this);
+    this._debugDraw = d;
+    return d;
+  },
+  debugDraw: function() {
+    if(this._debugDraw) {
+      this._debugDraw._draw();
+    }
   },
   update: function() {
     // first pass - sweep dynamic colliders into other colliders + add hits
@@ -62,19 +71,20 @@ Axis2D.World.prototype = {
     this._collidersHitPerUpdate.forEach(function(c){
       c._calculateTouches();
       if(c._collisionCallback) {
-        c._collisionCallback(c.getHits(), c.getTouching());
+        c._collisionCallback(c.getHits(), c.getTouches());
       }
     }, this);
     this._collidersHitPerUpdate = [];
   },
   _sweepCollisionsFixes: function(collider, otherColliders) {
-    var cType,
+    var cType = collider.getCollisionType(),
         sweep = this._sweepInto(collider, otherColliders);
 
-    if(sweep.hit && !collider._isSensor) {
-      cType = collider._collisionType;
-
+    if(sweep.hit && cType !== 'sensor') {
       this._sweepMoveFowardBackCheck(sweep, collider, otherColliders);
+
+      collider._lastHitPosition.x = sweep.hit.pos.x;
+      collider._lastHitPosition.y = sweep.hit.pos.y;
 
       if(cType === 'slide' || cType === 'bounce') {
 
@@ -180,12 +190,12 @@ Axis2D.World.prototype = {
 
       if(sweep.hit) {
         // sensor/filter check
-        if(collider._isSensor || colFilterFound) {
+        if(collider.getCollisionType() === 'sensor' || colFilterFound) {
           this._sweepSensorMoveForwardBackCheck(sweep, collider, oc);
         }
         else if (sweep.time < nearest.time) {
           // other sensor/filter check
-          if(oc._isSensor || ocFilterFound) {
+          if(oc.getCollisionType() === 'sensor' || ocFilterFound) {
             this._sweepSensorMoveForwardBackCheck(sweep, collider, oc);
           }
           else {

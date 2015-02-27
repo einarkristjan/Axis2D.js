@@ -40,7 +40,7 @@ DEMO.Entity.prototype = {
 
     return this;
   },
-  setCollider: function(width, height, sensor) {
+  setCollider: function(width, height, collisionType) {
     var cm = this.world.collisionManager,
         x = this._position.x,
         y = this._position.y,
@@ -48,8 +48,8 @@ DEMO.Entity.prototype = {
         h = height,
         collider = cm.createCollider(x, y, w, h);
 
-    if(sensor) {
-      collider.setSensor(true);
+    if(collisionType) {
+      collider.setCollisionType(collisionType);
     }
 
     // for access to entities on collisions

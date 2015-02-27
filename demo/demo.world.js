@@ -1,6 +1,8 @@
 var DEMO = DEMO || {};
 
 DEMO.World = function(params) {
+  var that = this;
+
   params = params || {};
 
   // this._uid = new Date().getTime();
@@ -15,6 +17,32 @@ DEMO.World = function(params) {
   if(!params.collisionManager) {
     this.collisionManager = new Axis2D.World(this.cellSize, this);
     this.debugDraw = this.collisionManager.createDebugDraw();
+
+    this.debugDraw.addGridCallback(
+      function(x, y, width, height, colliderCount) {
+        var rend = that.renderer;
+        rend.setColor(175, 175, 175);
+        rend.fillText(colliderCount, x + width/2, y + height/2);
+        rend.strokeRect(x, y, width, height);
+      }
+    );
+
+    this.debugDraw.addColliderCallback(
+      function(x, y, width, height, collisionType) {
+        var rend = that.renderer,
+            r = collisionType === 'sensor' ? 255 : 0,
+            g = 255,
+            b = 255;
+
+        rend.setFont('Arial', that.cellSize/4, 'center', 'middle');
+
+        rend.setColor(r, g, b, 0.25);
+        rend.fillRect(x, y, width, height);
+
+        rend.setColor(r, g, b);
+        rend.strokeRect(x, y, width, height);
+      }
+    );
   }
 
   if(!params.entityManager) {
@@ -32,32 +60,8 @@ DEMO.World.prototype = {
     this._frameCount++;
   },
   draw: function() {
-    var renderer = this.renderer;
-
-    renderer.setFont('Arial', this.cellSize/4, 'center', 'middle');
-
-    if(renderer && this.debug) {
-      renderer.setColor(175, 175, 175);
-      this.debugDraw.getGrid(
-        function(x, y, width, height, colliderCount) {
-          renderer.fillText(colliderCount, x + width/2, y + height/2);
-          renderer.strokeRect(x, y, width, height);
-        }
-      );
-
-      this.debugDraw.getColliders(
-        function(x, y, width, height, isSensor) {
-          var r = isSensor ? 255 : 0,
-              g = 255,
-              b = 255;
-
-          renderer.setColor(r, g, b, 0.25);
-          renderer.fillRect(x, y, width, height);
-
-          renderer.setColor(r, g, b);
-          renderer.strokeRect(x, y, width, height);
-        }
-      );
+    if(this.renderer && this.debug) {
+      this.collisionManager.debugDraw();
     }
   },
   createCollisionMap: function(map, offsetX, offsetY) {

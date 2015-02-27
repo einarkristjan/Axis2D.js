@@ -24,6 +24,8 @@ Axis2D.Collider = function(axisWorld, x, y, width, height) {
     bottom: false
   };
 
+  this._lastHitPosition = new intersect.Point(x, y);
+
   this._groupName = '';
   this._groupFilter = [];
 
@@ -34,7 +36,6 @@ Axis2D.Collider = function(axisWorld, x, y, width, height) {
   this._collisionCallback = undefined;
 
   this._isDynamic = false;
-  this._isSensor = false;
 
   this._axisWorld._placeColliderInGrid(this);
   this._axisWorld._colliders.push(this);
@@ -94,13 +95,6 @@ Axis2D.Collider.prototype = {
     Axis2D.typeCheck(groups, 'groups', 'Array');
     this._groupFilter = groups;
   },
-  setSensor: function(bool) {
-    Axis2D.typeCheck(bool, 'bool', 'Boolean');
-    this._isSensor = bool;
-  },
-  isSensor: function() {
-    return this._isSensor;
-  },
   setCollisionType: function(type) {
     Axis2D.typeCheck(type, 'type', 'String');
     this._collisionType = type;
@@ -112,11 +106,8 @@ Axis2D.Collider.prototype = {
     Axis2D.typeCheck(callback, 'callback', 'Function');
     this._collisionCallback = callback;
   },
-  getX: function() {
-    return this._AABB.pos.x;
-  },
-  getY: function() {
-    return this._AABB.pos.y;
+  getPosition: function() {
+    return this._AABB.pos;
   },
   getWidth: function() {
     return this._AABB.half.x * 2;
@@ -127,15 +118,20 @@ Axis2D.Collider.prototype = {
   getHits: function() {
     return this._hits;
   },
-  getTouching: function() {
+  getTouches: function() {
     return this._isTouching;
+  },
+  getLastHitPosition: function() {
+    return this._lastHitPosition;
   },
   _calculateTouches: function() {
     this._hits.forEach(function(hit){
       var oc = hit.collider,
-          notInGroup = this._groupFilter.indexOf(oc._groupName) === -1;
+          notInGroup = this._groupFilter.indexOf(oc._groupName) === -1,
+          tct = this._collisionType,
+          oct = oc._collisionType;
 
-      if(!this._isSensor && !oc.isSensor() && notInGroup) {
+      if(tct !== 'sensor' && oct !== 'sensor' && notInGroup) {
         if(hit.normal.x > 0) {
           this._isTouching.left = true;
         }
