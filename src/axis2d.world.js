@@ -12,7 +12,11 @@ Axis2D.World = function World(cellSize) {
 
   this._collidersHitPerUpdate = [];
 
+  this._responses = [];
+
   this._debugDraw = undefined;
+
+  this._pushFrac = 1.001;
 };
 
 Axis2D.World.prototype = {
@@ -38,11 +42,6 @@ Axis2D.World.prototype = {
     this._debugDraw = d;
     return d;
   },
-  debugDraw: function() {
-    if(this._debugDraw) {
-      this._debugDraw._draw();
-    }
-  },
   update: function() {
     // first pass - sweep dynamic colliders into other colliders + add hits
     this._dynamicColliders.forEach(function(collider){
@@ -57,7 +56,12 @@ Axis2D.World.prototype = {
         }, this);
       }, this);
 
-      this._sweepCollisionsFixes(collider, otherColliders);
+      this._firstSweepDeltaResponse(collider, otherColliders);
+
+      // fix position
+      collider._AABB.pos.x += collider._delta.x;
+      collider._AABB.pos.y += collider._delta.y;
+
       this._placeColliderInGrid(collider);
 
       // cleanups
@@ -76,54 +80,72 @@ Axis2D.World.prototype = {
     }, this);
     this._collidersHitPerUpdate = [];
   },
-  _sweepCollisionsFixes: function(collider, otherColliders) {
+  debugDraw: function() {
+    if(this._debugDraw) {
+      this._debugDraw._draw();
+    }
+  },
+  createCollisionType: function(name, response, secondSweep) {
+    Axis2D.typeCheck(name, 'name', 'String');
+    Axis2D.typeCheck(response, 'response', 'Function');
+
+
+  },
+  _secondSweepDeltaResponse: function(collider, otherColliders) {
+    // sweep again (slide, bounce .. etc)
+    sweep = this._sweepInto(collider, otherColliders);
+
+    if(sweep.hit) {
+      this._moveForwardAddHits(sweep, collider, otherColliders);
+
+      // move back for next move
+      collider._delta.x = sweep.hit.normal.x * this._pushFrac;
+      collider._delta.y = sweep.hit.normal.y * this._pushFrac;
+    }
+  },
+  _firstSweepDeltaResponse: function(collider, otherColliders) {
     var cType = collider.getCollisionType(),
         sweep = this._sweepInto(collider, otherColliders);
 
     if(sweep.hit && cType !== 'sensor') {
-      this._sweepMoveFowardBackCheck(sweep, collider, otherColliders);
+      this._moveForwardAddHits(sweep, collider, otherColliders);
 
-      collider._lastHitPosition.x = sweep.hit.pos.x;
-      collider._lastHitPosition.y = sweep.hit.pos.y;
+      // fix position (push away from collider with fraction)
+      collider._AABB.pos.x += sweep.hit.normal.x * this._pushFrac;
+      collider._AABB.pos.y += sweep.hit.normal.y * this._pushFrac;
 
-      if(cType === 'slide' || cType === 'bounce') {
+      // first hit, set last position for scripting
+      collider._lastHitPosition.x = collider._AABB.pos.x;
+      collider._lastHitPosition.y = collider._AABB.pos.y;
 
-        if(cType === 'slide') {
-          // undo the normal hit delta before slide
-          if(sweep.hit.normal.x) {
-            collider._delta.x = 0;
-          }
-          if(sweep.hit.normal.y) {
-            collider._delta.y = 0;
-          }
-        }
-
-        if(cType === 'bounce') {
-          // mirror the delta before next sweep
-          if(sweep.hit.normal.x) {
-            collider._delta.x = -collider._delta.x;
-          }
-          if(sweep.hit.normal.y) {
-            collider._delta.y = -collider._delta.y;
-          }
-        }
-
-        // sweep again (slide or bounce)
-        sweep = this._sweepInto(collider, otherColliders);
-
-        if(sweep.hit) {
-          this._sweepMoveFowardBackCheck(sweep, collider, otherColliders);
-        }
-        else {
-          collider._AABB.pos.x += collider._delta.x;
-          collider._AABB.pos.y += collider._delta.y;
-        }
+      if(cType === 'touch') {
+        collider._delta.x = 0;
+        collider._delta.y = 0;
       }
-    }
-    // hit nothing or is a sensor
-    else {
-      collider._AABB.pos.x += collider._delta.x;
-      collider._AABB.pos.y += collider._delta.y;
+
+      if(cType === 'slide') {
+        // undo the normal hit delta before slide
+        if(sweep.hit.normal.x) {
+          collider._delta.x = 0;
+        }
+        if(sweep.hit.normal.y) {
+          collider._delta.y = 0;
+        }
+
+        this._secondSweepDeltaResponse(collider, otherColliders);
+      }
+
+      if(cType === 'bounce') {
+        // mirror the delta before next sweep
+        if(sweep.hit.normal.x) {
+          collider._delta.x = -collider._delta.x;
+        }
+        if(sweep.hit.normal.y) {
+          collider._delta.y = -collider._delta.y;
+        }
+
+        this._secondSweepDeltaResponse(collider, otherColliders);
+      }
     }
   },
   _addToCollidersHitPerUpdate: function(colliderA, colliderB) {
@@ -149,8 +171,7 @@ Axis2D.World.prototype = {
       }
     }
   },
-  _sweepMoveFowardBackCheck: function(sweep, collider, otherColliders) {
-    var pushFrac = 1.001;
+  _moveForwardAddHits: function(sweep, collider, otherColliders) {
     // set first hit position before sweeping again
     // add a little to the delta for collision callbacks
     collider._AABB.pos.x += sweep.hit.delta.x - sweep.hit.normal.x;
@@ -159,20 +180,6 @@ Axis2D.World.prototype = {
     otherColliders.forEach(function(otherCollider){
       this._addToCollidersHitPerUpdate(collider, otherCollider);
     }, this);
-
-    // fix position (push away from collider with fraction)
-    collider._AABB.pos.x += sweep.hit.normal.x * pushFrac;
-    collider._AABB.pos.y += sweep.hit.normal.y * pushFrac;
-  },
-  _sweepSensorMoveForwardBackCheck: function(sweep, colliderA, colliderB) {
-    colliderA._AABB.pos.x += sweep.hit.delta.x - sweep.hit.normal.x;
-    colliderA._AABB.pos.y += sweep.hit.delta.y - sweep.hit.normal.y;
-
-    this._addToCollidersHitPerUpdate(colliderA, colliderB);
-
-    // move back for next move
-    colliderA._AABB.pos.x -= sweep.hit.delta.x - sweep.hit.normal.x;
-    colliderA._AABB.pos.y -= sweep.hit.delta.y - sweep.hit.normal.y;
   },
   _sweepInto: function(collider, otherColliders) {
     var cAABB = collider._AABB,
@@ -185,18 +192,28 @@ Axis2D.World.prototype = {
 
     otherColliders.forEach(function(oc) {
       var sweep = oc._AABB.sweepAABB(cAABB, cDelta),
-          colFilterFound = oc._groupFilter.indexOf(collider._groupName) !== -1,
-          ocFilterFound = collider._groupFilter.indexOf(oc._groupName) !== -1;
+          crf = collider._responseFilters,
+          ocrf = oc._responseFilters,
+          cf = ocrf.indexOf(collider._responseName) !== -1,
+          ocf = crf.indexOf(oc._responseName) !== -1;
 
       if(sweep.hit) {
         // sensor/filter check
-        if(collider.getCollisionType() === 'sensor' || colFilterFound) {
-          this._sweepSensorMoveForwardBackCheck(sweep, collider, oc);
+        if(collider.getCollisionType() === 'sensor' || cf) {
+          this._moveForwardAddHits(sweep, collider, [oc]);
+
+          // move back for next move
+          collider._AABB.pos.x -= sweep.hit.delta.x - sweep.hit.normal.x;
+          collider._AABB.pos.y -= sweep.hit.delta.y - sweep.hit.normal.y;
         }
         else if (sweep.time < nearest.time) {
           // other sensor/filter check
-          if(oc.getCollisionType() === 'sensor' || ocFilterFound) {
-            this._sweepSensorMoveForwardBackCheck(sweep, collider, oc);
+          if(oc.getCollisionType() === 'sensor' || ocf) {
+            this._moveForwardAddHits(sweep, collider, [oc]);
+
+            // move back for next move
+            collider._AABB.pos.x -= sweep.hit.delta.x - sweep.hit.normal.x;
+            collider._AABB.pos.y -= sweep.hit.delta.y - sweep.hit.normal.y;
           }
           else {
             sweep.hit.collider = oc;
