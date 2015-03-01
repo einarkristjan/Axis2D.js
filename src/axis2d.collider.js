@@ -26,8 +26,8 @@ Axis2D.Collider = function(axisWorld, x, y, width, height) {
 
   this._lastHitPosition = new intersect.Point(x, y);
 
-  this._groupName = '';
-  this._groupFilter = [];
+  this._responseName = '';
+  this._responseFilters = [];
 
   this._positionInGridKeys = [];
   this._hits = [];
@@ -87,13 +87,13 @@ Axis2D.Collider.prototype = {
 
     this._setAsDynamic();
   },
-  setGroup: function(name) {
+  setResponseName: function(name) {
     Axis2D.typeCheck(name, 'name', 'String');
-    this._groupName = name;
+    this._responseName = name;
   },
-  setGroupFilter: function(groups) {
-    Axis2D.typeCheck(groups, 'groups', 'Array');
-    this._groupFilter = groups;
+  setResponseFilters: function(names) {
+    Axis2D.typeCheck(names, 'names', 'Array');
+    this._responseFilters = names;
   },
   setCollisionType: function(type) {
     Axis2D.typeCheck(type, 'type', 'String');
@@ -125,13 +125,16 @@ Axis2D.Collider.prototype = {
     return this._lastHitPosition;
   },
   _calculateTouches: function() {
+    // TODO: do not calculate firstHits
+
     this._hits.forEach(function(hit){
       var oc = hit.collider,
-          notInGroup = this._groupFilter.indexOf(oc._groupName) === -1,
+          rf = this._responseFilters,
+          notInFilter = rf.indexOf(oc._responseName) === -1,
           tct = this._collisionType,
           oct = oc._collisionType;
 
-      if(tct !== 'sensor' && oct !== 'sensor' && notInGroup) {
+      if(tct !== 'sensor' && oct !== 'sensor' && notInFilter) {
         if(hit.normal.x > 0) {
           this._isTouching.left = true;
         }

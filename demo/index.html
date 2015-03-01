@@ -95,19 +95,23 @@
   demoWorld
     .createEntity(160, 160)
       .setCollider(80, 80)
-      .setColliderGroup('players', ['players'])
+      .setColliderResponseFilter('players', ['players'])
       .setUserData({
         foo: 123,
         speed: 15,
+        startColliderSizeX: 80,
+        startColliderSizeY: 80,
         bar: function() {
           return this.foo;
         }
       })
       .setLoop(function() {
         var dirX = 0,
-            dirY = 0;
+            dirY = 0,
+            newSizeX,
+            newSizeY;
 
-        // console.log(this.collider.getTouching(), this.collider.getHits());
+        // console.log(this.collider.getTouches(), this.collider.getHits());
 
         if(DEMO.inputs.key['38']) {
           dirY = -1;
@@ -121,6 +125,21 @@
         }
         else if(DEMO.inputs.key['39']) {
           dirX = 1;
+        }
+
+        // space
+        if(DEMO.inputs.key['32'] && this.world._frameCount % 5 === 0) {
+          newSizeX = this.userData.startColliderSizeX;
+          if(this.collider.getWidth() === this.userData.startColliderSizeX) {
+            newSizeX = 100;
+          }
+
+          newSizeY = this.userData.startColliderSizeY;
+          if(this.collider.getHeight() === this.userData.startColliderSizeY) {
+            newSizeY = 100;
+          }
+
+          this.collider.resize(newSizeX, newSizeY);
         }
 
         dirX *= this.userData.speed;
@@ -172,7 +191,7 @@
   demoWorld
     .createEntity(width - 128, 138)
       .setCollider(80, 70)
-      .setColliderGroup('players', ['players'])
+      .setColliderResponseFilter('players', ['players'])
       .setLoop(function(){
         // console.log(this.collider.getTouching(), this.collider.getHits());
       })
@@ -194,7 +213,7 @@
     .createEntity(128, height - 128)
       .setCollider(80, 70)
       .setLoop(function(){
-        // console.log(this.collider.getTouching(), this.collider.getHits());
+        // console.log(this.collider.getTouches(), this.collider.getHits());
       })
       .onCollision(function(hits, touching){
         console.log('enemy', touching, hits);

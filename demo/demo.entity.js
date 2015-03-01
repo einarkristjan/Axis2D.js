@@ -32,12 +32,11 @@ DEMO.Entity.prototype = {
 
     return this;
   },
-  setColliderGroup: function(groupName, groupFilter) {
+  setColliderResponseFilter: function(responseName, responseFilters) {
     if(this.collider) {
-      this.collider.setGroup(groupName);
-      this.collider.setGroupFilter(groupFilter);
+      this.collider.setResponseName(responseName);
+      this.collider.setResponseFilters(responseFilters);
     }
-
     return this;
   },
   setCollider: function(width, height, collisionType) {
