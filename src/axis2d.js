@@ -1,5 +1,5 @@
 // namespace
-Axis2D = {};
+Axis2D = { version: '0.7.0dev' };
 
 // helpers
 Axis2D.typeCheck = function(variable, varName, type) {
