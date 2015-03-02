@@ -152,38 +152,6 @@ Axis2D.Collider.prototype = {
   _setAsDynamic: function() {
     if(!this._isDynamic) {
       this._isDynamic = true;
-
-      /*
-      this._isTouching.top = false;
-      this._isTouching.left = false;
-      this._isTouching.right = false;
-      this._isTouching.bottom = false;
-
-      // remove this collider hit from other colliders
-      this._hits.forEach(function(hit){
-        var oc = hit.collider;
-
-        oc._hits.forEach(function(oh, idx) {
-          var sweep;
-          if(oh.collider === this) {
-            // check if next step hits same collider
-            sweep = oc._AABB.sweepAABB(this._AABB, this._delta);
-            if(!sweep.hit) {
-              oc._isTouching.top = false;
-              oc._isTouching.left = false;
-              oc._isTouching.right = false;
-              oc._isTouching.bottom = false;
-              oc._hits.splice(idx, 1);
-              oc._calculateTouches();
-            }
-            return;
-          }
-        }, this);
-      }, this);
-
-      this._hits = [];
-      */
-
       this._axisWorld._dynamicColliders.push(this);
     }
   },

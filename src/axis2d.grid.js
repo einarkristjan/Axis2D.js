@@ -2,11 +2,10 @@ Axis2D.Grid = function World(axisWorld, cellSize) {
   Axis2D.typeCheck(axisWorld, 'axisWorld', Axis2D.World);
   Axis2D.typeCheck(cellSize, 'cellSize', 'Number');
 
+  this._axisWorld = axisWorld;
+
   this._cellSize = Math.abs(cellSize) || 64;
   this._cells = {};
-
-  // dynamic colliders are colliders that have moved or be resized
-  this._dynamicColliders = [];
 };
 
 Axis2D.Grid.prototype = {
