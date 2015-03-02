@@ -10,8 +10,8 @@ Axis2D.Collider = function(axisWorld, x, y, width, height) {
   this._AABB = new intersect.AABB({},{});
   this._AABB.pos.x = x || 0;
   this._AABB.pos.y = y || 0;
-  this._AABB.half.x = (Math.abs(width) || axisWorld._cellSize - 1) / 2;
-  this._AABB.half.y = (Math.abs(height) || axisWorld._cellSize - 1) / 2;
+  this._AABB.half.x = (Math.abs(width) || axisWorld._grid._cellSize - 1) / 2;
+  this._AABB.half.y = (Math.abs(height) || axisWorld._grid._cellSize - 1) / 2;
 
   this._delta = new intersect.Point(0, 0);
 
@@ -125,35 +125,35 @@ Axis2D.Collider.prototype = {
     return this._lastHitPosition;
   },
   _calculateTouches: function() {
-    // TODO: do not calculate firstHits
+    if(this._collisionType !== 'sensor') {
+      this._hits.forEach(function(hit){
+        var oc = hit.collider,
+            rf = this._responseFilters,
+            otherNotInFilter = rf.indexOf(oc._responseName) === -1,
+            oct = oc._collisionType;
 
-    this._hits.forEach(function(hit){
-      var oc = hit.collider,
-          rf = this._responseFilters,
-          notInFilter = rf.indexOf(oc._responseName) === -1,
-          tct = this._collisionType,
-          oct = oc._collisionType;
-
-      if(tct !== 'sensor' && oct !== 'sensor' && notInFilter) {
-        if(hit.normal.x > 0) {
-          this._isTouching.left = true;
+        if(oct !== 'sensor' && otherNotInFilter) {
+          if(hit.normal.x > 0) {
+            this._isTouching.left = true;
+          }
+          else if(hit.normal.x < 0) {
+            this._isTouching.right = true;
+          }
+          if(hit.normal.y > 0) {
+            this._isTouching.top = true;
+          }
+          else if(hit.normal.y < 0) {
+            this._isTouching.bottom = true;
+          }
         }
-        else if(hit.normal.x < 0) {
-          this._isTouching.right = true;
-        }
-        if(hit.normal.y > 0) {
-          this._isTouching.top = true;
-        }
-        else if(hit.normal.y < 0) {
-          this._isTouching.bottom = true;
-        }
-      }
-    }, this);
+      }, this);
+    }
   },
   _setAsDynamic: function() {
     if(!this._isDynamic) {
       this._isDynamic = true;
 
+      /*
       this._isTouching.top = false;
       this._isTouching.left = false;
       this._isTouching.right = false;
@@ -182,6 +182,7 @@ Axis2D.Collider.prototype = {
       }, this);
 
       this._hits = [];
+      */
 
       this._axisWorld._dynamicColliders.push(this);
     }

@@ -42,10 +42,10 @@ Axis2D.DebugDraw.prototype = {
   _getGrid: function(callback) {
     var g, key, x, y, split,
         world = this._axisWorld,
-        cellSize = world._cellSize;
+        cellSize = world._grid._cellSize;
 
-    for(key in world._grid) {
-      g = world._grid[key];
+    for(key in world._grid._cells) {
+      g = world._grid._cells[key];
       split = key.split(/(\-?\d*)/);
       x = split[1] * cellSize;
       y = split[3] * cellSize;
