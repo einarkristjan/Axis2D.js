@@ -14,6 +14,10 @@ DEMO.World = function(params) {
   this.entityManager = params.entityManager;
   this.collisionManager = params.collisionManager;
 
+  function collisionCallback(entities) {
+    console.log(entities);
+  }
+
   if(!params.collisionManager) {
     this.collisionManager = new Axis2D.World(this.cellSize, this);
     this.debugDraw = this.collisionManager.createDebugDraw();
@@ -28,9 +32,9 @@ DEMO.World = function(params) {
     );
 
     this.debugDraw.addColliderCallback(
-      function(x, y, width, height, collisionType) {
+      function(x, y, width, height, isSensor) {
         var rend = that.renderer,
-            r = collisionType === 'sensor' ? 255 : 0,
+            r = isSensor ? 255 : 0,
             g = 255,
             b = 255;
 
@@ -43,6 +47,13 @@ DEMO.World = function(params) {
         rend.strokeRect(x, y, width, height);
       }
     );
+
+    this.collisionManager.setCollisionCallback(function(colliders) {
+      var entities = colliders.map(function(collider){
+        return collider.userData;
+      });
+      collisionCallback(entities);
+    });
   }
 
   if(!params.entityManager) {

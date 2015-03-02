@@ -32,14 +32,14 @@ DEMO.Entity.prototype = {
 
     return this;
   },
-  setColliderResponseFilter: function(responseName, responseFilters) {
+  setColliderGroupFilter: function(groupName, groupFilters) {
     if(this.collider) {
-      this.collider.setResponseName(responseName);
-      this.collider.setResponseFilters(responseFilters);
+      this.collider.setGroupName(groupName);
+      this.collider.setGroupFilters(groupFilters);
     }
     return this;
   },
-  setCollider: function(width, height, collisionType) {
+  setCollider: function(width, height, isSensor) {
     var cm = this.world.collisionManager,
         x = this._position.x,
         y = this._position.y,
@@ -47,8 +47,8 @@ DEMO.Entity.prototype = {
         h = height,
         collider = cm.createCollider(x, y, w, h);
 
-    if(collisionType) {
-      collider.setCollisionType(collisionType);
+    if(isSensor) {
+      collider.setSensor(isSensor);
     }
 
     // for access to entities on collisions
@@ -66,18 +66,16 @@ DEMO.Entity.prototype = {
   onCollision: function(callback) {
     var entity = this;
 
-    function entityCallback(hits, touching) {
-      var allHits = hits.map(function(hit){
-        // add entity for quick access in callback
-        hit.entity = hit.collider.userData;
-        return hit;
-      });
-
-      callback.call(entity, allHits, touching);
-    }
-
     if(this.collider) {
-      this.collider.setCollisionCallback(entityCallback);
+      this.collider.setCollisionCallback(function(hits, touching) {
+        var allHits = hits.map(function(hit){
+          // add entity for quick access in callback
+          hit.entity = hit.collider.userData;
+          return hit;
+        });
+
+        callback.call(entity, allHits, touching);
+      });
     }
 
     return this;

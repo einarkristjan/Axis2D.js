@@ -4,9 +4,10 @@ Axis2D.World = function World(cellSize) {
   this._grid = new Axis2D.Grid(this, cellSize);
 
   this._colliders = [];
-  this._collidersHitPerUpdate = [];
+  this._collidersHit = [];
   this._responses = [];
   this._debugDraw = undefined;
+  this._collisionCallback = undefined;
 
   // dynamic colliders are colliders that have moved or be resized
   this._dynamicColliders = [];
@@ -21,7 +22,7 @@ Axis2D.World.prototype = {
     var collidersIndex = this._colliders.indexOf(collider),
         dynamicCollidersIndex = this._dynamicColliders.indexOf(collider);
 
-    this._clearColliderFromGrid(collider);
+    this._grid._clearColliderFromGrid(collider);
 
     if(collidersIndex !== -1) {
       this._colliders.splice(collidersIndex, 1);
@@ -37,14 +38,14 @@ Axis2D.World.prototype = {
   },
   update: function() {
     // first pass - clear last hits
-    this._collidersHitPerUpdate.forEach(function(c){
+    this._collidersHit.forEach(function(c){
       c._hits = [];
       c._isTouching.top = false;
       c._isTouching.left = false;
       c._isTouching.right = false;
       c._isTouching.bottom = false;
     }, this);
-    this._collidersHitPerUpdate = [];
+    this._collidersHit = [];
 
     // second pass - sweep dynamic colliders into other colliders + add hits
     this._dynamicColliders.forEach(function(collider){
@@ -70,19 +71,23 @@ Axis2D.World.prototype = {
     this._dynamicColliders = [];
 
     // third pass - return hits for static and dynamic
-    this._collidersHitPerUpdate.forEach(function(c){
+    this._collidersHit.forEach(function(c){
       c._calculateTouches();
       if(c._collisionCallback) {
         c._collisionCallback(c.getHits(), c.getTouches());
       }
     }, this);
+
+    if(this._collisionCallback && this._collidersHit.length) {
+      this._collisionCallback(this._collidersHit);
+    }
   },
   debugDraw: function() {
     if(this._debugDraw) {
       this._debugDraw._draw();
     }
   },
-  createCollisionType: function(name, response, secondSweep) {
+  createResponseType: function(name, response, secondSweep) {
     Axis2D.typeCheck(name, 'name', 'String');
     Axis2D.typeCheck(response, 'response', 'Function');
     Axis2D.typeCheck(secondSweep, 'secondSweep', 'Boolean');
@@ -90,8 +95,24 @@ Axis2D.World.prototype = {
     // TODO: finish it ! :P
 
   },
+  getCollidersHit: function() {
+    return this._collidersHit;
+  },
+  setCollisionCallback: function(callback) {
+    Axis2D.typeCheck(callback, 'callback', 'Function');
+    this._collisionCallback = callback;
+  },
+  getColliders: function() {
+    return this._colliders;
+  },
+  countColliders: function() {
+    return this._colliders.length;
+  },
+  countCells: function() {
+    return this._grid._cells.length;
+  },
   _collisionResponses: function(collider, otherColliders) {
-    var cType = collider.getCollisionType(),
+    var cType = collider.getResponseType(),
         sweep = this._sweepMoveForwardAddHits(collider, otherColliders);
 
     if(sweep.hit) {
@@ -171,14 +192,14 @@ Axis2D.World.prototype = {
 
     otherColliders.forEach(function(oc) {
       var sweep = oc._AABB.sweepAABB(cAABB, cDelta),
-          crf = collider._responseFilters,
-          ocrf = oc._responseFilters,
-          cFound = ocrf.indexOf(collider._responseName) !== -1,
-          ocFound = crf.indexOf(oc._responseName) !== -1;
+          crf = collider._groupFilters,
+          ocrf = oc._groupFilters,
+          cFound = ocrf.indexOf(collider._groupName) !== -1,
+          ocFound = crf.indexOf(oc._groupName) !== -1;
 
       if(sweep.hit) {
         // sensor/filter check
-        if(collider.getCollisionType() === 'sensor' || cFound) {
+        if(collider.isSensor() || cFound) {
           this._moveForwardAddHits(sweep.hit, collider, [oc]);
 
           // move back for next move
@@ -187,7 +208,7 @@ Axis2D.World.prototype = {
         }
         else if (sweep.time < nearest.time) {
           // other sensor/filter check
-          if(oc.getCollisionType() === 'sensor' || ocFound) {
+          if(oc.isSensor() || ocFound) {
             this._moveForwardAddHits(sweep.hit, collider, [oc]);
 
             // move back for next move
@@ -210,10 +231,10 @@ Axis2D.World.prototype = {
     collider._AABB.pos.y += sweepHit.delta.y - sweepHit.normal.y;
 
     otherColliders.forEach(function(otherCollider){
-      this._addToCollidersHitPerUpdate(collider, otherCollider);
+      this._addToCollidersHit(collider, otherCollider);
     }, this);
   },
-  _addToCollidersHitPerUpdate: function(colliderA, colliderB) {
+  _addToCollidersHit: function(colliderA, colliderB) {
     var hitA,
         hitB = colliderA._AABB.intersectAABB(colliderB._AABB);
 
@@ -227,12 +248,12 @@ Axis2D.World.prototype = {
       colliderA._addHit(hitA);
       colliderB._addHit(hitB);
 
-      if(this._collidersHitPerUpdate.indexOf(colliderA) === -1) {
-        this._collidersHitPerUpdate.push(colliderA);
+      if(this._collidersHit.indexOf(colliderA) === -1) {
+        this._collidersHit.push(colliderA);
       }
 
-      if(this._collidersHitPerUpdate.indexOf(colliderB) === -1) {
-        this._collidersHitPerUpdate.push(colliderB);
+      if(this._collidersHit.indexOf(colliderB) === -1) {
+        this._collidersHit.push(colliderB);
       }
     }
   },

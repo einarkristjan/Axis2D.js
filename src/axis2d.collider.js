@@ -15,7 +15,7 @@ Axis2D.Collider = function(axisWorld, x, y, width, height) {
 
   this._delta = new intersect.Point(0, 0);
 
-  this._collisionType = 'slide';
+  this._responseType = 'slide';
 
   this._isTouching = {
     top: false,
@@ -26,8 +26,10 @@ Axis2D.Collider = function(axisWorld, x, y, width, height) {
 
   this._lastHitPosition = new intersect.Point(x, y);
 
-  this._responseName = '';
-  this._responseFilters = [];
+  this._isSensor = false;
+
+  this._groupName = '';
+  this._groupFilters = [];
 
   this._positionInGridKeys = [];
   this._hits = [];
@@ -87,20 +89,20 @@ Axis2D.Collider.prototype = {
 
     this._setAsDynamic();
   },
-  setResponseName: function(name) {
+  setGroupName: function(name) {
     Axis2D.typeCheck(name, 'name', 'String');
-    this._responseName = name;
+    this._groupName = name;
   },
-  setResponseFilters: function(names) {
+  setGroupFilters: function(names) {
     Axis2D.typeCheck(names, 'names', 'Array');
-    this._responseFilters = names;
+    this._groupFilters = names;
   },
-  setCollisionType: function(type) {
+  setResponseType: function(type) {
     Axis2D.typeCheck(type, 'type', 'String');
-    this._collisionType = type;
+    this._responseType = type;
   },
-  getCollisionType: function() {
-    return this._collisionType;
+  getResponseType: function() {
+    return this._responseType;
   },
   setCollisionCallback: function(callback) {
     Axis2D.typeCheck(callback, 'callback', 'Function');
@@ -124,15 +126,21 @@ Axis2D.Collider.prototype = {
   getLastHitPosition: function() {
     return this._lastHitPosition;
   },
+  setSensor: function(bool) {
+    Axis2D.typeCheck(bool, 'bool', 'Boolean');
+    this._isSensor = bool;
+  },
+  isSensor: function() {
+    return this._isSensor;
+  },
   _calculateTouches: function() {
-    if(this._collisionType !== 'sensor') {
+    if(!this.isSensor()) {
       this._hits.forEach(function(hit){
         var oc = hit.collider,
-            rf = this._responseFilters,
-            otherNotInFilter = rf.indexOf(oc._responseName) === -1,
-            oct = oc._collisionType;
+            rf = this._groupFilters,
+            otherNotInFilter = rf.indexOf(oc._groupName) === -1;
 
-        if(oct !== 'sensor' && otherNotInFilter) {
+        if(!oc.isSensor() && otherNotInFilter) {
           if(hit.normal.x > 0) {
             this._isTouching.left = true;
           }

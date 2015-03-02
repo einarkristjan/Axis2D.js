@@ -17,8 +17,8 @@ Axis2D.typeCheck = function(variable, varName, type) {
   }
 
   if(error) {
-    errorTxt += 'In last stack call, ';
-    errorTxt += 'parameter "'+varName+'" should be of type: ' + varObjName;
+    errorTxt += 'In last stack calls, ';
+    errorTxt += 'parameter "'+varName+'" should be of type: ' + type;
     throw TypeError(errorTxt);
   }
 };

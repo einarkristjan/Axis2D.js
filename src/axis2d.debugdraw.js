@@ -36,7 +36,7 @@ Axis2D.DebugDraw.prototype = {
       w = c._AABB.half.x * 2;
       h = c._AABB.half.y * 2;
 
-      callback(x, y, w, h, c._collisionType);
+      callback(x, y, w, h, c.isSensor());
     }, this);
   },
   _getGrid: function(callback) {

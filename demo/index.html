@@ -96,7 +96,7 @@
   demoWorld
     .createEntity(160, 160)
       .setCollider(80, 80)
-      .setColliderResponseFilter('players', ['players'])
+      .setColliderGroupFilter('players', ['players'])
       .setUserData({
         foo: 123,
         speed: 15,
@@ -158,7 +158,7 @@
 
   demoWorld
     .createEntity(width/2, height/2)
-      .setCollider(120, 100, 'sensor')
+      .setCollider(120, 100, true)
       .setUserData({
         left: true
       })
@@ -177,11 +177,11 @@
         this.moveTo(this._position.x + xSpeed, this._position.y);
 
         if(this.world._frameCount % 250 === 0) {
-          if(this.collider.getCollisionType() === 'sensor') {
-            this.collider.setCollisionType('slide');
+          if(this.collider.isSensor()) {
+            this.collider.setSensor(false);
           }
           else {
-            this.collider.setCollisionType('sensor');
+            this.collider.setSensor(true);
           }
         }
       })
@@ -192,7 +192,7 @@
   demoWorld
     .createEntity(width - 128, 138)
       .setCollider(80, 70)
-      .setColliderResponseFilter('players', ['players'])
+      .setColliderGroupFilter('players', ['players'])
       .setLoop(function(){
         // console.log(this.collider.getTouching(), this.collider.getHits());
       })
@@ -202,7 +202,7 @@
 
   demoWorld
     .createEntity(width - 128, height - 128)
-      .setCollider(80, 70, 'sensor')
+      .setCollider(80, 70, true)
       .setLoop(function(){
         // console.log(this.collider.getTouching(), this.collider.getHits());
       })
