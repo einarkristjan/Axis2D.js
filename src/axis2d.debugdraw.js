@@ -5,6 +5,8 @@ Axis2D.DebugDraw = function DebugDraw(axisWorld) {
 
   this._colliderCallback = undefined;
   this._gridCallback = undefined;
+
+  this._axisWorld._debugDraw = this;
 };
 
 Axis2D.DebugDraw.prototype = {

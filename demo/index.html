@@ -96,6 +96,7 @@
   demoWorld
     .createEntity(160, 160)
       .setCollider(80, 80)
+      .setColliderResponseType('slide')
       .setColliderGroupFilter('players', ['players'])
       .setUserData({
         foo: 123,

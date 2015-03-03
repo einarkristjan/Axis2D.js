@@ -32,6 +32,12 @@ DEMO.Entity.prototype = {
 
     return this;
   },
+  setColliderResponseType: function(type) {
+    if(this.collider) {
+      this.collider.setResponseType(type);
+    }
+    return this;
+  },
   setColliderGroupFilter: function(groupName, groupFilters) {
     if(this.collider) {
       this.collider.setGroupName(groupName);

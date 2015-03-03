@@ -24,8 +24,6 @@ Axis2D.Collider = function(axisWorld, x, y, width, height) {
     bottom: false
   };
 
-  this._lastHitPosition = new intersect.Point(x, y);
-
   this._isSensor = false;
 
   this._groupName = '';
@@ -39,7 +37,7 @@ Axis2D.Collider = function(axisWorld, x, y, width, height) {
 
   this._isDynamic = false;
 
-  this._axisWorld._placeColliderInGrid(this);
+  this._axisWorld._grid._placeColliderInGrid(this);
   this._axisWorld._colliders.push(this);
 
   // find collisions on create
@@ -48,46 +46,47 @@ Axis2D.Collider = function(axisWorld, x, y, width, height) {
 
 Axis2D.Collider.prototype = {
   moveTo: function(x, y) {
+    this._delta.x = x - this._AABB.pos.x;
+    this._delta.y = y - this._AABB.pos.y;
+
+    if(this._delta.x || this._delta.y) {
+      this._placeInGrid();
+      this._setAsDynamic();
+    }
+  },
+  resize: function(width, height) {
+    var hW = width / 2,
+        hH = height / 2;
+
+    if(this._AABB.half.x !== hW && this._AABB.half.y !== hH) {
+      this._AABB.half.x = width / 2;
+      this._AABB.half.y = height / 2;
+      this._placeInGrid();
+      this._setAsDynamic();
+    }
+  },
+  _placeInGrid: function() {
+    // 1. move collider to the middle/center position
+    // 2. make the collider take upp all the space it moved in
+    // 3. place collider in the grid
+    // 4. resize collider back and place it in the new coords
     var hW = this._AABB.half.x,
         hH = this._AABB.half.y,
         posX = this._AABB.pos.x,
         posY = this._AABB.pos.y;
 
-    this._delta.x = x - posX;
-    this._delta.y = y - posY;
+    this._AABB.pos.x += this._delta.x / 2;
+    this._AABB.pos.y += this._delta.y / 2;
 
-    if(this._delta.x || this._delta.y) {
-      // To find out the grid the collider has to sweep:
-      // 1. move collider to the middle/center position
-      // 2. make the collider take upp all the space it moved in
-      // 3. place collider in the grid
-      // 4. resize collider back and place it in the new coords
+    this._AABB.half.x = Math.abs(this._delta.x) / 2 + hW;
+    this._AABB.half.y = Math.abs(this._delta.y) / 2 + hH;
 
-      this._AABB.pos.x = (posX + x) / 2;
-      this._AABB.pos.y = (posY + y) / 2;
+    this._axisWorld._grid._placeColliderInGrid(this);
 
-      this._AABB.half.x = Math.abs(this._delta.x) / 2 + hW;
-      this._AABB.half.y = Math.abs(this._delta.y) / 2 + hH;
-
-      this._axisWorld._placeColliderInGrid(this);
-
-      this._AABB.pos.x = posX;
-      this._AABB.pos.y = posY;
-      this._AABB.half.x = hW;
-      this._AABB.half.y = hH;
-
-      this._setAsDynamic();
-    }
-  },
-  resize: function(width, height) {
-    this._AABB.half.x = width/2;
-    this._AABB.half.y = height/2;
-
-    if(!this._delta.x || !this._delta.y) {
-      this._axisWorld._placeColliderInGrid(this);
-    }
-
-    this._setAsDynamic();
+    this._AABB.pos.x = posX;
+    this._AABB.pos.y = posY;
+    this._AABB.half.x = hW;
+    this._AABB.half.y = hH;
   },
   setGroupName: function(name) {
     Axis2D.typeCheck(name, 'name', 'String');
@@ -99,6 +98,18 @@ Axis2D.Collider.prototype = {
   },
   setResponseType: function(type) {
     Axis2D.typeCheck(type, 'type', 'String');
+
+    var needle = false;
+    for(var key in this._axisWorld._responses) {
+      if(key === type) {
+        needle = true;
+      }
+    }
+
+    if(!needle) {
+      throw Error('response type does not exist in Axis2D World');
+    }
+
     this._responseType = type;
   },
   getResponseType: function() {
@@ -122,9 +133,6 @@ Axis2D.Collider.prototype = {
   },
   getTouches: function() {
     return this._isTouching;
-  },
-  getLastHitPosition: function() {
-    return this._lastHitPosition;
   },
   setSensor: function(bool) {
     Axis2D.typeCheck(bool, 'bool', 'Boolean');
