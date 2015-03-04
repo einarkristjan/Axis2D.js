@@ -24,6 +24,8 @@ Axis2D.Collider = function(axisWorld, x, y, width, height) {
     bottom: false
   };
 
+  this._potentialHitColliders = [];
+
   this._isSensor = false;
 
   this._groupName = '';
@@ -50,7 +52,7 @@ Axis2D.Collider.prototype = {
     this._delta.y = y - this._AABB.pos.y;
 
     if(this._delta.x || this._delta.y) {
-      this._placeInGrid();
+      this._placeInPotentialGrid();
       this._setAsDynamic();
     }
   },
@@ -58,35 +60,13 @@ Axis2D.Collider.prototype = {
     var hW = width / 2,
         hH = height / 2;
 
+    // only if collider resizes up... else it's in same grid
     if(this._AABB.half.x !== hW && this._AABB.half.y !== hH) {
       this._AABB.half.x = width / 2;
       this._AABB.half.y = height / 2;
-      this._placeInGrid();
+      this._placeInPotentialGrid();
       this._setAsDynamic();
     }
-  },
-  _placeInGrid: function() {
-    // 1. move collider to the middle/center position
-    // 2. make the collider take upp all the space it moved in
-    // 3. place collider in the grid
-    // 4. resize collider back and place it in the new coords
-    var hW = this._AABB.half.x,
-        hH = this._AABB.half.y,
-        posX = this._AABB.pos.x,
-        posY = this._AABB.pos.y;
-
-    this._AABB.pos.x += this._delta.x / 2;
-    this._AABB.pos.y += this._delta.y / 2;
-
-    this._AABB.half.x = Math.abs(this._delta.x) / 2 + hW;
-    this._AABB.half.y = Math.abs(this._delta.y) / 2 + hH;
-
-    this._axisWorld._grid._placeColliderInGrid(this);
-
-    this._AABB.pos.x = posX;
-    this._AABB.pos.y = posY;
-    this._AABB.half.x = hW;
-    this._AABB.half.y = hH;
   },
   setGroupName: function(name) {
     Axis2D.typeCheck(name, 'name', 'String');
@@ -140,6 +120,38 @@ Axis2D.Collider.prototype = {
   },
   isSensor: function() {
     return this._isSensor;
+  },
+  _placeInPotentialGrid: function() {
+    // 1. move collider to the middle/center position
+    // 2. make the collider take upp all the space it moved in
+    // 3. place collider in the grid
+    // 4. find potential hit colliders
+    // 5. resize collider back and place it in the new coords
+    var hW = this._AABB.half.x,
+        hH = this._AABB.half.y,
+        posX = this._AABB.pos.x,
+        posY = this._AABB.pos.y;
+
+    this._AABB.pos.x += this._delta.x / 2;
+    this._AABB.pos.y += this._delta.y / 2;
+
+    this._AABB.half.x = Math.abs(this._delta.x) / 2 + hW;
+    this._AABB.half.y = Math.abs(this._delta.y) / 2 + hH;
+
+    this._axisWorld._grid._placeColliderInGrid(this);
+
+    this._positionInGridKeys.forEach(function(key){
+      this._axisWorld._grid._cells[key].forEach(function(oc){
+        if(this !== oc && this._potentialHitColliders.indexOf(oc) === -1) {
+          this._potentialHitColliders.push(oc);
+        }
+      }, this);
+    }, this);
+
+    this._AABB.pos.x = posX;
+    this._AABB.pos.y = posY;
+    this._AABB.half.x = hW;
+    this._AABB.half.y = hH;
   },
   _calculateTouches: function() {
     if(!this.isSensor()) {
