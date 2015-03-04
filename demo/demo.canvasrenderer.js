@@ -5,6 +5,9 @@ DEMO.CanvasRenderer = function(canvas, width, height) {
   this._ctx = this._canvas.getContext('2d');
   this._width = width || this._canvas.width;
   this._height = height || this._canvas.height;
+  this._scaledWidth = this._width;
+  this._scaledHeight = this._height;
+  this._scaleRatio = 0;
 
   // first run to set the canvas width and height
   this.resize(this._width, this._height);
@@ -64,11 +67,16 @@ DEMO.CanvasRenderer.prototype = {
         ch = canvas.height,
         canvasRatio = cw / ch,
         windowRatio = windowWidth / windowHeight,
-        newRatio = windowRatio - canvasRatio,
         widthCalc = windowHeight / ch * cw,
-        heightCalc = windowWidth / cw * ch;
+        heightCalc = windowWidth / cw * ch,
+        newRatio = windowRatio - canvasRatio;
 
-    canvas.style.width = newRatio <= 0 ? windowWidth+'px' : widthCalc+'px';
-    canvas.style.height = newRatio > 0 ? windowHeight+'px' : heightCalc+'px';
+    this._scaledWidth = newRatio <= 0 ? windowWidth : widthCalc;
+    this._scaledHeight = newRatio > 0 ? windowHeight : heightCalc;
+
+    this._scaleRatio = this._scaledWidth / canvas.width;
+
+    canvas.style.width = this._scaledWidth + 'px';
+    canvas.style.height = this._scaledHeight + 'px';
   }
 };

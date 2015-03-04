@@ -75,6 +75,16 @@
     renderer.scaleTo(window.innerWidth, window.innerHeight);
   }
 
+  canvas.addEventListener('mousedown', function(e) {
+    var colliders = demoWorld.collisionManager.queryPoint(
+          e.offsetX / renderer._scaleRatio,
+          e.offsetY / renderer._scaleRatio
+        );
+
+    console.log(colliders);
+
+  });
+
   window.addEventListener('resize', onWindowResize);
 
   // first run
