@@ -191,5 +191,101 @@ Axis2D.Collider.prototype = {
       }
     }
     this._hits.push(hit);
+  },
+  _sweepForward: function() {
+    var cAABB = this._AABB,
+        cDelta = this._delta,
+        nearest = new intersect.Sweep(),
+        otherColliders = this._potentialHitColliders;
+
+    nearest.time = 1;
+    nearest.pos.x = cAABB.pos.x + cDelta.x;
+    nearest.pos.y = cAABB.pos.y + cDelta.y;
+
+    otherColliders.forEach(function(oc) {
+      var sweep = oc._AABB.sweepAABB(cAABB, cDelta),
+          crf = this._groupFilters,
+          ocrf = oc._groupFilters,
+          cFilterFound = ocrf.indexOf(this._groupName) !== -1,
+          ocFilterFound = crf.indexOf(oc._groupName) !== -1;
+
+      if(sweep.hit) {
+        // bug in intersect?
+        sweep.hit.delta.x += sweep.hit.normal.x * 0.99;
+        sweep.hit.delta.y += sweep.hit.normal.y * 0.99;
+
+        // sensor/filter check - ignore nearest
+        if(this.isSensor() || cFilterFound) {
+          this._moveForwardAddHits(sweep.hit, [oc]);
+
+          // move all the way back for next sweep
+          this._AABB.pos.x -= sweep.hit.delta.x;
+          this._AABB.pos.y -= sweep.hit.delta.y;
+        }
+        else if (sweep.time < nearest.time) {
+          // other sensor/filter check - ignore nearest
+          if(oc.isSensor() || ocFilterFound) {
+            this._moveForwardAddHits(sweep.hit, [oc]);
+
+            // move all the way back for next sweep
+            this._AABB.pos.x -= sweep.hit.delta.x;
+            this._AABB.pos.y -= sweep.hit.delta.y;
+          }
+          else {
+            nearest = sweep;
+          }
+        }
+      }
+    }, this);
+
+    if(nearest.hit) {
+      this._moveForwardAddHits(nearest.hit, otherColliders);
+    }
+
+    return nearest;
+  },
+  _moveForwardAddHits: function(sweepHit, otherColliders) {
+    // add a little to the delta for adding all colliders hitting,
+    // because sweep can only hit one collider at a time
+    this._AABB.pos.x += sweepHit.delta.x - sweepHit.normal.x;
+    this._AABB.pos.y += sweepHit.delta.y - sweepHit.normal.y;
+
+    otherColliders.forEach(function(colliderB){
+      var hitA,
+          hitB = this._AABB.intersectAABB(colliderB._AABB);
+
+      if(hitB) {
+        hitA = colliderB._AABB.intersectAABB(this._AABB);
+
+        // we already got right delta
+        hitA.delta = sweepHit.delta;
+
+        // overwrite for collision callbacks to access collider
+        hitA.collider = colliderB;
+        hitB.collider = this;
+
+        // colliderA was moved by adding a normal. so hitB delta will be wrong.
+        // if colliderB is dynamic and moves into colliderA next, it should
+        // be ok to set deltas to zero. _addHit will not create second
+        // hit with same collider
+        hitB.delta.x = 0;
+        hitB.delta.y = 0;
+
+        this._addHit(hitA);
+        colliderB._addHit(hitB);
+
+        if(this._axisWorld._collidersHit.indexOf(this) === -1) {
+          this._axisWorld._collidersHit.push(this);
+        }
+
+        if(this._axisWorld._collidersHit.indexOf(colliderB) === -1) {
+          this._axisWorld._collidersHit.push(colliderB);
+        }
+      }
+    }, this);
+
+    // fix position back to first hit
+    this._AABB.pos.x += sweepHit.normal.x;
+    this._AABB.pos.y += sweepHit.normal.y;
   }
 };
