@@ -1,10 +1,10 @@
 var DEMO = DEMO || {};
 
-DEMO.CanvasRenderer = function(canvas, width, height) {
-  this._canvas = canvas || document.createElement('canvas');
-  this._ctx = this._canvas.getContext('2d');
-  this._width = width || this._canvas.width;
-  this._height = height || this._canvas.height;
+DEMO.CanvasRenderer = function(element, width, height) {
+  this._element = element || document.createElement('canvas');
+  this._ctx = this._element.getContext('2d');
+  this._width = width || this._element.width;
+  this._height = height || this._element.height;
   this._scaledWidth = this._width;
   this._scaledHeight = this._height;
   this._scaleRatio = 0;
@@ -58,25 +58,32 @@ DEMO.CanvasRenderer.prototype = {
   resize: function(width, height) {
     this._width = width;
     this._height = height;
-    this._canvas.width = width;
-    this._canvas.height = height;
+    this._element.width = width;
+    this._element.height = height;
+  },
+  line: function(x1, y1, x2, y2) {
+    this._ctx.beginPath();
+    this._ctx.moveTo(x1, y1);
+    this._ctx.lineTo(x2, y2);
+    this._ctx.stroke();
+    this._ctx.closePath();
   },
   scaleTo: function(windowWidth, windowHeight) {
-    var canvas = this._canvas,
-        cw = canvas.width,
-        ch = canvas.height,
-        canvasRatio = cw / ch,
+    var element = this._element,
+        cw = element.width,
+        ch = element.height,
+        elementRatio = cw / ch,
         windowRatio = windowWidth / windowHeight,
         widthCalc = windowHeight / ch * cw,
         heightCalc = windowWidth / cw * ch,
-        newRatio = windowRatio - canvasRatio;
+        newRatio = windowRatio - elementRatio;
 
     this._scaledWidth = newRatio <= 0 ? windowWidth : widthCalc;
     this._scaledHeight = newRatio > 0 ? windowHeight : heightCalc;
 
-    this._scaleRatio = this._scaledWidth / canvas.width;
+    this._scaleRatio = this._scaledWidth / element.width;
 
-    canvas.style.width = this._scaledWidth + 'px';
-    canvas.style.height = this._scaledHeight + 'px';
+    element.style.width = this._scaledWidth + 'px';
+    element.style.height = this._scaledHeight + 'px';
   }
 };

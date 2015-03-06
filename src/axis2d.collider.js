@@ -52,7 +52,6 @@ Axis2D.Collider.prototype = {
     this._delta.y = y - this._AABB.pos.y;
 
     if(this._delta.x || this._delta.y) {
-      this._placeInPotentialGrid();
       this._setAsDynamic();
     }
   },
@@ -64,7 +63,6 @@ Axis2D.Collider.prototype = {
     if(this._AABB.half.x !== hW && this._AABB.half.y !== hH) {
       this._AABB.half.x = width / 2;
       this._AABB.half.y = height / 2;
-      this._placeInPotentialGrid();
       this._setAsDynamic();
     }
   },
@@ -202,6 +200,8 @@ Axis2D.Collider.prototype = {
     nearest.pos.x = cAABB.pos.x + cDelta.x;
     nearest.pos.y = cAABB.pos.y + cDelta.y;
 
+    this._placeInPotentialGrid();
+
     otherColliders.forEach(function(oc) {
       var sweep = oc._AABB.sweepAABB(cAABB, cDelta),
           crf = this._groupFilters,
@@ -216,7 +216,7 @@ Axis2D.Collider.prototype = {
 
         // sensor/filter check - ignore nearest
         if(this.isSensor() || cFilterFound) {
-          this._moveForwardAddHits(sweep.hit, [oc]);
+          this._addHits(sweep.hit, [oc]);
 
           // move all the way back for next sweep
           this._AABB.pos.x -= sweep.hit.delta.x;
@@ -225,13 +225,14 @@ Axis2D.Collider.prototype = {
         else if (sweep.time < nearest.time) {
           // other sensor/filter check - ignore nearest
           if(oc.isSensor() || ocFilterFound) {
-            this._moveForwardAddHits(sweep.hit, [oc]);
+            this._addHits(sweep.hit, [oc]);
 
             // move all the way back for next sweep
             this._AABB.pos.x -= sweep.hit.delta.x;
             this._AABB.pos.y -= sweep.hit.delta.y;
           }
           else {
+            sweep.hit.collider = oc;
             nearest = sweep;
           }
         }
@@ -239,12 +240,12 @@ Axis2D.Collider.prototype = {
     }, this);
 
     if(nearest.hit) {
-      this._moveForwardAddHits(nearest.hit, otherColliders);
+      this._addHits(nearest.hit, otherColliders);
     }
 
     return nearest;
   },
-  _moveForwardAddHits: function(sweepHit, otherColliders) {
+  _addHits: function(sweepHit, otherColliders) {
     // add a little to the delta for adding all colliders hitting,
     // because sweep can only hit one collider at a time
     this._AABB.pos.x += sweepHit.delta.x - sweepHit.normal.x;

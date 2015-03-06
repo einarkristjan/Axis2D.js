@@ -1,24 +1,23 @@
 var DEMO = DEMO || {};
 
-DEMO.inputs = (function() {
-  var key = {},
-      mouse = { x: 0, y: 0 };
+DEMO.Inputs = function(demoWorld) {
+  var that = this;
+
+  this.key = {};
+  this.mouse = { x: 0, y: 0 };
 
   window.onkeydown = function(e) {
-    key[e.keyCode] = true;
+    that.key[e.keyCode] = true;
   };
 
   window.onkeyup = function(e) {
-    key[e.keyCode] = false;
+    that.key[e.keyCode] = false;
   };
 
-  window.onmousemove = function(e) {
-    mouse.x = e.x;
-    mouse.y = e.y;
-  };
-
-  return {
-    key: key,
-    mouse: mouse
-  };
-})();
+  if(demoWorld.renderer) {
+    demoWorld.renderer._element.addEventListener('mousemove', function(e){
+      that.mouse.x = e.offsetX / demoWorld.renderer._scaleRatio;
+      that.mouse.y = e.offsetY / demoWorld.renderer._scaleRatio;
+    });
+  }
+};

@@ -1,5 +1,7 @@
 Axis2D.World = function World(cellSize) {
-  Axis2D.typeCheck(cellSize, 'cellSize', 'Number');
+  if(cellSize) {
+    Axis2D.typeCheck(cellSize, 'cellSize', 'Number');
+  }
 
   this._grid = new Axis2D.Grid(this, cellSize);
 
@@ -13,7 +15,6 @@ Axis2D.World = function World(cellSize) {
   this._dynamicColliders = [];
 
   // create default responses
-
   this.createResponseType('touch', function(collider){
     var sweep = collider._sweepForward();
 
@@ -67,10 +68,6 @@ Axis2D.World = function World(cellSize) {
         collider._delta.y = -collider._delta.y;
       }
 
-      // because inverted deltas, otherColliders could be outside of
-      // the collider potential grid for next sweep
-      collider._placeInPotentialGrid();
-
       // second sweep
       sweep = collider._sweepForward();
 
@@ -110,7 +107,7 @@ Axis2D.World.prototype = {
         // because sensors move through many colliders
         sweep = collider._sweepForward();
 
-        // sensors always move forward to it's delta
+        // sensors always move forward to it's first delta
         collider._AABB.pos.x += collider._delta.x;
         collider._AABB.pos.y += collider._delta.y;
       }
@@ -167,7 +164,6 @@ Axis2D.World.prototype = {
   createResponseType: function(name, response) {
     Axis2D.typeCheck(name, 'name', 'String');
     Axis2D.typeCheck(response, 'response', 'Function');
-
     this._responses[name] = response;
   },
   getCollidersHit: function() {
@@ -186,7 +182,19 @@ Axis2D.World.prototype = {
   countGridCells: function() {
     return Object.keys(this._grid._cells).length;
   },
+  setCellSize: function(cellSize) {
+    Axis2D.typeCheck(cellSize, 'cellSize', 'Number');
+
+    this._grid._cellSize = cellSize;
+
+    this._colliders.forEach(function(collider){
+      this._grid._placeColliderInGrid(collider);
+    }, this);
+  },
   queryPoint: function(x, y) {
+    Axis2D.typeCheck(x, 'x', 'Number');
+    Axis2D.typeCheck(x, 'y', 'Number');
+
     var colliders = [],
         keyX = Math.floor(x/this._grid._cellSize),
         keyY = Math.floor(y/this._grid._cellSize),
@@ -203,13 +211,60 @@ Axis2D.World.prototype = {
     return colliders;
   },
   queryRect: function(x, y, width, height) {
-    var colliders = [];
+    Axis2D.typeCheck(x, 'x', 'Number');
+    Axis2D.typeCheck(x, 'y', 'Number');
+    Axis2D.typeCheck(width, 'width', 'Number');
+    Axis2D.typeCheck(height, 'height', 'Number');
+
+    var colliders = [],
+        sensor = this.createCollider(x, y, width, height);
+
+    sensor.setSensor(true);
+    sensor._placeInPotentialGrid();
+
+    sensor._potentialHitColliders.forEach(function(oc){
+      if(sensor._AABB.intersectAABB(oc._AABB)) {
+        colliders.push(oc);
+      }
+    }, true);
+
+    this.removeCollider(sensor);
 
     return colliders;
   },
-  querySegment: function(x1, y1, x2, y2, width, height, groupFilter) {
-    var colliders = [];
+  rayCast: function(x1, y1, x2, y2, groupFilter) {
+    Axis2D.typeCheck(x1, 'x1', 'Number');
+    Axis2D.typeCheck(y1, 'y1', 'Number');
+    Axis2D.typeCheck(x2, 'x2', 'Number');
+    Axis2D.typeCheck(y2, 'y2', 'Number');
 
-    return colliders;
+    var sweep,
+        endX = x2,
+        endY = y2,
+        hits = [],
+        collider = this.createCollider(x1, y1, 1, 1);
+
+    collider._delta.x = x2 - x1;
+    collider._delta.y = y2 - y1;
+
+    if(groupFilter) {
+      Axis2D.typeCheck(groupFilter, 'groupFilter', 'Array');
+      collider.setGroupFilters(groupFilter);
+    }
+
+    sweep = collider._sweepForward();
+
+    if(collider._hits.length) {
+      hits = collider._hits.slice();
+    }
+
+    if(sweep.hit) {
+      endX = sweep.hit.pos.x;
+      endY = sweep.hit.pos.y;
+    }
+
+    this.removeCollider(collider);
+
+    return new intersect.Point(endX, endY);
   }
 };

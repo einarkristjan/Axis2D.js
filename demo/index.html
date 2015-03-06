@@ -76,13 +76,11 @@
   }
 
   canvas.addEventListener('mousedown', function(e) {
-    var colliders = demoWorld.collisionManager.queryPoint(
-          e.offsetX / renderer._scaleRatio,
-          e.offsetY / renderer._scaleRatio
-        );
-
-    console.log(colliders);
-
+    var x = demoWorld.inputs.mouse.x,
+        y = demoWorld.inputs.mouse.y,
+        collPoint = demoWorld.collisionManager.queryPoint(x, y),
+        collRect = demoWorld.collisionManager.queryRect(x, y, 100, 100);
+    console.log(collPoint, collRect);
   });
 
   window.addEventListener('resize', onWindowResize);
@@ -121,26 +119,28 @@
         var dirX = 0,
             dirY = 0,
             newSizeX,
-            newSizeY;
+            newSizeY,
+            rayEndX = this.world.inputs.mouse.x,
+            rayEndY = this.world.inputs.mouse.y;
 
         // console.log(this.collider.getTouches(), this.collider.getHits());
 
-        if(DEMO.inputs.key['38']) {
+        if(demoWorld.inputs.key['38']) {
           dirY = -1;
         }
-        else if(DEMO.inputs.key['40']) {
+        else if(demoWorld.inputs.key['40']) {
           dirY = 1;
         }
 
-        if(DEMO.inputs.key['37']) {
+        if(demoWorld.inputs.key['37']) {
           dirX = -1;
         }
-        else if(DEMO.inputs.key['39']) {
+        else if(demoWorld.inputs.key['39']) {
           dirX = 1;
         }
 
         // space
-        if(DEMO.inputs.key['32'] && this.world._frameCount % 5 === 0) {
+        if(demoWorld.inputs.key['32'] && this.world._frameCount % 5 === 0) {
           newSizeX = this.userData.startColliderSizeX;
           if(this.collider.getWidth() === this.userData.startColliderSizeX) {
             newSizeX = 100;
@@ -162,6 +162,25 @@
         if(this.world._frameCount === 50) {
           this.moveTo(width, height);
         }
+
+        var rayHits = this.world.collisionManager.rayCast(
+          this._position.x,
+          this._position.y,
+          this.world.inputs.mouse.x,
+          this.world.inputs.mouse.y,
+          ['players']
+        );
+
+        rayEndX = rayHits.x;
+        rayEndY = rayHits.y;
+
+        this.world.renderer.setColor(255, 0, 255);
+        this.world.renderer.line(
+          this._position.x,
+          this._position.y,
+          rayEndX,
+          rayEndY
+        );
       })
       .onCollision(function(hits, touching){
         console.log('player1', touching, hits);
@@ -234,12 +253,11 @@
   (function loop() {
     requestAnimFrame(loop);
 
-    demoWorld.update();
-
     // draw background
     renderer.setColor(0, 0, 0);
     renderer.fillRect(0, 0, width, height);
 
+    demoWorld.update();
     demoWorld.draw();
   })();
 

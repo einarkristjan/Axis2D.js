@@ -1,6 +1,8 @@
 Axis2D.Grid = function World(axisWorld, cellSize) {
   Axis2D.typeCheck(axisWorld, 'axisWorld', Axis2D.World);
-  Axis2D.typeCheck(cellSize, 'cellSize', 'Number');
+  if(cellSize) {
+    Axis2D.typeCheck(cellSize, 'cellSize', 'Number');
+  }
 
   this._axisWorld = axisWorld;
 

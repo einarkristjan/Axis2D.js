@@ -13,13 +13,14 @@ DEMO.World = function(params) {
   this.renderer = params.renderer;
   this.entityManager = params.entityManager;
   this.collisionManager = params.collisionManager;
+  this.inputs = new DEMO.Inputs(this);
 
   function collisionCallback(entities) {
     console.log(entities);
   }
 
   if(!params.collisionManager) {
-    this.collisionManager = new Axis2D.World(this.cellSize, this);
+    this.collisionManager = new Axis2D.World(this.cellSize);
     this.debugDraw = this.collisionManager.createDebugDraw();
 
     this.debugDraw.addGridCallback(
