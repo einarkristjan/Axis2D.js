@@ -1,15 +1,15 @@
-Axis2D.Collider = function(axisWorld, x, y, width, height) {
+Axis2D.Collider = function(axisWorld, centerX, centerY, width, height) {
   Axis2D.typeCheck(axisWorld, 'axisWorld', Axis2D.World);
-  Axis2D.typeCheck(x, 'x', 'Number');
-  Axis2D.typeCheck(y, 'y', 'Number');
+  Axis2D.typeCheck(centerX, 'centerX', 'Number');
+  Axis2D.typeCheck(centerY, 'centerY', 'Number');
   Axis2D.typeCheck(width, 'width', 'Number');
   Axis2D.typeCheck(height, 'height', 'Number');
 
   this._axisWorld = axisWorld;
 
   this._AABB = new intersect.AABB({},{});
-  this._AABB.pos.x = x || 0;
-  this._AABB.pos.y = y || 0;
+  this._AABB.pos.x = centerX || 0;
+  this._AABB.pos.y = centerY || 0;
   this._AABB.half.x = (Math.abs(width) || axisWorld._grid._cellSize - 1) / 2;
   this._AABB.half.y = (Math.abs(height) || axisWorld._grid._cellSize - 1) / 2;
 
@@ -190,7 +190,7 @@ Axis2D.Collider.prototype = {
     }
     this._hits.push(hit);
   },
-  _sweepForward: function() {
+  _moveToDelta: function() {
     var cAABB = this._AABB,
         cDelta = this._delta,
         nearest = new intersect.Sweep(),

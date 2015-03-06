@@ -8,7 +8,7 @@ DEMO.World = function(params) {
   // this._uid = new Date().getTime();
   this._frameCount = 0;
 
-  this.cellSize = params.cellSize || 64;
+  this.cellSize = params.cellSize || 32;
   this.debug = params.debug || false;
   this.renderer = params.renderer;
   this.entityManager = params.entityManager;
@@ -38,8 +38,6 @@ DEMO.World = function(params) {
             r = isSensor ? 255 : 0,
             g = 255,
             b = 255;
-
-        rend.setFont('Arial', that.cellSize/4, 'center', 'middle');
 
         rend.setColor(r, g, b, 0.25);
         rend.fillRect(x, y, width, height);
@@ -72,31 +70,24 @@ DEMO.World.prototype = {
     this._frameCount++;
   },
   draw: function() {
-    if(this.renderer && this.debug) {
-      this.collisionManager.debugDraw();
+    if(this.renderer) {
+      this.renderer.setFont('Arial', 16, 'center', 'middle');
+
+      if(this.debug) {
+        this.collisionManager.debugDraw();
+      }
+
+      this.renderer.setColor(255, 255, 255);
+      this.renderer.fillText(
+        'Colliders: ' + this.collisionManager.countColliders(),
+        this.renderer._width/2,
+        16
+      );
+      this.renderer.fillText(
+        'Grid cells: ' + this.collisionManager.countGridCells(),
+        this.renderer._width/2,
+        32
+      );
     }
-  },
-  createCollisionMap: function(map, offsetX, offsetY) {
-    offsetX = offsetX || 0;
-    offsetY = offsetY || 0;
-
-    var ent, centerX, centerY,
-        cellSize = this.cellSize,
-        entities = [];
-
-    map.forEach(function(row, y){
-      row.forEach(function(col, x){
-        if(col) {
-          centerX = (x + offsetX + 0.5) * cellSize;
-          centerY = (y + offsetY + 0.5) * cellSize;
-
-          ent = new DEMO.Entity(this, centerX, centerY);
-          ent.setCollider(cellSize - 1, cellSize - 1);
-
-          entities.push(ent);
-        }
-      }, this);
-    }, this);
-    return entities;
   }
 };

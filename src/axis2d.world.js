@@ -16,7 +16,7 @@ Axis2D.World = function World(cellSize) {
 
   // create default responses
   this.createResponseType('touch', function(collider){
-    var sweep = collider._sweepForward();
+    var sweep = collider._moveToDelta();
 
     if(sweep.hit) {
       // hard stop on hit
@@ -30,7 +30,7 @@ Axis2D.World = function World(cellSize) {
   });
 
   this.createResponseType('slide', function(collider){
-    var sweep = collider._sweepForward();
+    var sweep = collider._moveToDelta();
 
     if(sweep.hit) {
       // slide - undo the normal hit delta
@@ -42,10 +42,10 @@ Axis2D.World = function World(cellSize) {
       }
 
       // second sweep
-      sweep = collider._sweepForward();
+      sweep = collider._moveToDelta();
 
       if(sweep.hit) {
-        // if we got a hit on second run.. _sweepForward has fixed pos
+        // if we got a hit on second run.. _moveToDelta has fixed pos
         collider._delta.x = 0;
         collider._delta.y = 0;
       }
@@ -57,7 +57,7 @@ Axis2D.World = function World(cellSize) {
   });
 
   this.createResponseType('bounce', function(collider){
-    var sweep = collider._sweepForward();
+    var sweep = collider._moveToDelta();
 
     if(sweep.hit) {
       // bounce - mirror the delta before next sweep
@@ -69,10 +69,10 @@ Axis2D.World = function World(cellSize) {
       }
 
       // second sweep
-      sweep = collider._sweepForward();
+      sweep = collider._moveToDelta();
 
       if(sweep.hit) {
-        // if we got a hit on second run.. _sweepForward has fixed pos
+        // if we got a hit on second run.. _moveToDelta has fixed pos
         collider._delta.x = 0;
         collider._delta.y = 0;
       }
@@ -103,9 +103,9 @@ Axis2D.World.prototype = {
     this._dynamicColliders.forEach(function(collider){
       // sensor is a hard-coded response type that overwrites other types
       if(collider.isSensor()) {
-        // sensor hits added in sweepForward,
+        // sensor hits added in moveToDelta,
         // because sensors move through many colliders
-        sweep = collider._sweepForward();
+        sweep = collider._moveToDelta();
 
         // sensors always move forward to it's first delta
         collider._AABB.pos.x += collider._delta.x;
@@ -137,8 +137,8 @@ Axis2D.World.prototype = {
       this._collisionCallback(this._collidersHit);
     }
   },
-  createCollider: function(x, y, width, height) {
-    return new Axis2D.Collider(this, x, y, width, height);
+  createCollider: function(centerX, centerY, width, height) {
+    return new Axis2D.Collider(this, centerX, centerY, width, height);
   },
   removeCollider: function(collider) {
     Axis2D.typeCheck(collider, 'collider', Axis2D.Collider);
@@ -210,14 +210,14 @@ Axis2D.World.prototype = {
 
     return colliders;
   },
-  queryRect: function(x, y, width, height) {
-    Axis2D.typeCheck(x, 'x', 'Number');
-    Axis2D.typeCheck(x, 'y', 'Number');
+  queryRect: function(centerX, centerY, width, height) {
+    Axis2D.typeCheck(centerX, 'centerX', 'Number');
+    Axis2D.typeCheck(centerY, 'centerY', 'Number');
     Axis2D.typeCheck(width, 'width', 'Number');
     Axis2D.typeCheck(height, 'height', 'Number');
 
     var colliders = [],
-        sensor = this.createCollider(x, y, width, height);
+        sensor = this.createCollider(centerX, centerY, width, height);
 
     sensor.setSensor(true);
     sensor._placeInPotentialGrid();
@@ -232,7 +232,8 @@ Axis2D.World.prototype = {
 
     return colliders;
   },
-  rayCast: function(x1, y1, x2, y2, groupFilter) {
+  rayCast: function(callback, x1, y1, x2, y2, groupFilter) {
+    Axis2D.typeCheck(callback, 'callback', 'Function');
     Axis2D.typeCheck(x1, 'x1', 'Number');
     Axis2D.typeCheck(y1, 'y1', 'Number');
     Axis2D.typeCheck(x2, 'x2', 'Number');
@@ -252,7 +253,7 @@ Axis2D.World.prototype = {
       collider.setGroupFilters(groupFilter);
     }
 
-    sweep = collider._sweepForward();
+    sweep = collider._moveToDelta();
 
     if(collider._hits.length) {
       hits = collider._hits.slice();
@@ -265,6 +266,6 @@ Axis2D.World.prototype = {
 
     this.removeCollider(collider);
 
-    return new intersect.Point(endX, endY);
+    callback(new intersect.Point(endX, endY), hits);
   }
 };
