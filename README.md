@@ -6,7 +6,7 @@ A simple AABB collision / response library inspired by bump.lua and Box2D.
 
 ## API
 
-Axis2D.World(cellSize)
+### Axis2D.World(cellSize)
 * update: function()
 * createCollider: function(centerX, centerY, width, height)
 * removeCollider: function({collider})
@@ -23,7 +23,7 @@ Axis2D.World(cellSize)
 * queryRect: function(centerX, centerY, width, height)
 * rayCast: function(callback({endPoint}, [hits]), x1, y1, x2, y2, [groupFilter])
 
-Axis2D.Collider({axisWorld}, centerX, centerY, width, height)
+### Axis2D.Collider({axisWorld}, centerX, centerY, width, height)
 * moveTo: function(x, y)
 * resize: function(width, height)
 * setGroupName: function("name")
@@ -39,7 +39,7 @@ Axis2D.Collider({axisWorld}, centerX, centerY, width, height)
 * setSensor: function(bool)
 * isSensor: function()
 
-Axis2D.DebugDraw
+### Axis2D.DebugDraw
 * addColliderCallback: function(callback(x, y, width, height, isSensor)
 * addGridCallback: function(callback(x, y, width, height, count))
 
