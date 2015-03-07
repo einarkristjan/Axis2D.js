@@ -204,6 +204,7 @@
           rayEndX,
           rayEndY
         );
+        this.world.renderer.strokeCircle(rayEndX, rayEndY, 8);
       })
       .onCollision(function(hits, touching){
         console.log('player1', touching, hits);
