@@ -37,12 +37,14 @@
     })();
   </script>
 
-  <script src="../intersect/intersect.js"></script>
-  <script src="../src/axis2d.js"></script>
-  <script src="../src/axis2d.grid.js"></script>
-  <script src="../src/axis2d.world.js"></script>
-  <script src="../src/axis2d.collider.js"></script>
-  <script src="../src/axis2d.debugdraw.js"></script>
+  <!-- Axis2D depends on the intersect library -->
+  <script src="../../intersect/intersect.js"></script>
+
+  <script src="../../src/axis2d.js"></script>
+  <script src="../../src/axis2d.grid.js"></script>
+  <script src="../../src/axis2d.world.js"></script>
+  <script src="../../src/axis2d.collider.js"></script>
+  <script src="../../src/axis2d.debugdraw.js"></script>
 
   <script src="demo.world.js"></script>
   <script src="demo.inputs.js"></script>
@@ -108,19 +110,19 @@
   }
 
   createCollisionMap([
-    [1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1]
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
   ], 64);
 
   demoWorld
-    .createEntity(160, 160)
+    .createEntity(120, 100)
       .setCollider(80, 80)
       .setColliderResponseType('slide')
       .setColliderGroupFilter('players', ['players'])
@@ -194,50 +196,9 @@
           this.world.inputs.mouse.y,
           ['players']
         );
-
-        this.world.renderer.setColor(255, 0, 255);
-        this.world.renderer.line(
-          this._position.x,
-          this._position.y,
-          rayEndX,
-          rayEndY
-        );
       })
       .onCollision(function(hits, touching){
         console.log('player1', touching, hits);
-      });
-
-  demoWorld
-    .createEntity(width/2, height/2)
-      .setCollider(120, 100, true)
-      .setUserData({
-        left: true
-      })
-      .setLoop(function(){
-        var xSpeed = 0;
-
-        if(this._position.x < 250) {
-          this.userData.left = false;
-        }
-        else if(this._position.x > width - 250) {
-          this.userData.left = true;
-        }
-
-        xSpeed = this.userData.left ? -2 : 2;
-
-        this.moveTo(this._position.x + xSpeed, this._position.y);
-
-        if(this.world._frameCount % 250 === 0) {
-          if(this.collider.isSensor()) {
-            this.collider.setSensor(false);
-          }
-          else {
-            this.collider.setSensor(true);
-          }
-        }
-      })
-      .onCollision(function(hits, touching){
-        console.log('other', touching, hits);
       });
 
   demoWorld
@@ -270,42 +231,6 @@
       })
       .onCollision(function(hits, touching){
         console.log('enemy', touching, hits);
-      });
-
-  demoWorld
-    .createEntity(32, 220)
-      .setCollider(10, 10)
-      .setLoop(function(){
-        if(this.world._frameCount === 100) {
-          this.moveTo(32, 350);
-        }
-      })
-      .onCollision(function(hits, touching){
-        console.log('firstHit', touching, hits);
-      });
-
-  demoWorld
-    .createEntity(32, height / 2)
-      .setCollider(10, 10)
-      .setLoop(function(){
-        if(this.world._frameCount === 100) {
-          this.moveTo(32, 220);
-        }
-      })
-      .onCollision(function(hits, touching){
-        console.log('secondHit', touching, hits);
-      });
-
-  demoWorld
-    .createEntity(32, 350)
-      .setCollider(10, 10)
-      .setLoop(function(){
-        if(this.world._frameCount === 100) {
-          this.moveTo(32, height/2);
-        }
-      })
-      .onCollision(function(hits, touching){
-        console.log('thirdHit', touching, hits);
       });
 
   (function loop() {
