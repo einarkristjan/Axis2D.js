@@ -1,6 +1,6 @@
 # Axis2D.js
 
-![collisions/queries](https://github.com/einarkristjan/Axis2D.js/tree/dev/img/collisions-queries.png)
+![collisions/queries](https://raw.githubusercontent.com/einarkristjan/Axis2D.js/dev/img/collisions-queries.png)
 
 ## License
 
