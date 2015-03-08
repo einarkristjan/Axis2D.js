@@ -6,14 +6,14 @@ A simple AABB collision / response library inspired by bump.lua and Box2D.
 
 ![collisions/queries](https://raw.githubusercontent.com/einarkristjan/Axis2D.js/dev/img/collisions-queries.png)
 
-### Axis2D built in response types
+### Axis2D built in types
 * "slide" (default) - example: Platform characters
 * "touch" - example: Arrows
 * "bounce" - example: Arkanoid ball
 
 ### Filtering
 
-Filter colliders using sensors and groupFilters
+Filter responses using sensors and groupFilters
 
     collider.setSensor(true);
 
@@ -27,14 +27,17 @@ Filter colliders using sensors and groupFilters
 Use the .createResponseType()
 
 example:
-      axisWorld.createResponseType('slide', function(collider){
+
+      axisWorld.createResponseType('fast-slide', function(collider){
         var sweep = collider._moveToDelta();
 
         if(sweep.hit) {
           if(sweep.hit.normal.x) {
             collider._delta.x = 0;
+            collider._delta.y *= 2;
           }
           else if(sweep.hit.normal.y) {
+            collider._delta.x *= 2;
             collider._delta.y = 0;
           }
 
