@@ -713,14 +713,7 @@ Axis2D.Collider.prototype = {
   setResponseType: function(type) {
     Axis2D.typeCheck(type, 'type', 'String');
 
-    var needle = false;
-    for(var key in this._axisWorld._responses) {
-      if(key === type) {
-        needle = true;
-      }
-    }
-
-    if(!needle) {
+    if(Object.keys(this._axisWorld._responses).indexOf(type) === -1) {
       throw Error('response type does not exist in Axis2D World');
     }
 
@@ -939,11 +932,11 @@ Axis2D.DebugDraw = function DebugDraw(axisWorld) {
 };
 
 Axis2D.DebugDraw.prototype = {
-  addColliderCallback: function(callback) {
+  setColliderCallback: function(callback) {
     Axis2D.typeCheck(callback, 'callback', 'Function');
     this._colliderCallback = callback;
   },
-  addGridCallback: function(callback) {
+  setGridCallback: function(callback) {
     Axis2D.typeCheck(callback, 'callback', 'Function');
     this._gridCallback = callback;
   },
