@@ -39,7 +39,7 @@ A simple AABB collision / response library inspired by bump.lua and Box2D.
 * setSensor: function(bool) : void
 * isSensor: function() : bool
 
-### Axis2D.DebugDraw
+### Axis2D.DebugDraw({axisWorld})
 * addColliderCallback: function(callback(x, y, width, height, isSensor) : void
 * addGridCallback: function(callback(x, y, width, height, count)) : void
 
