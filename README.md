@@ -98,6 +98,14 @@ example:
 * npm install
 * grunt
 
+## intersect.js submodule
+
+To include submodule after fork/clone, run command:
+
+    git submodule update --init --recursive
+
+Also, GitHub currently doesn't include submodules in Downloads/Source code.
+
 ## License
 
 MIT license.
