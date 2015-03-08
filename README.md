@@ -43,6 +43,14 @@ A simple AABB collision / response library inspired by bump.lua and Box2D.
 * addColliderCallback: function(callback(x, y, width, height, isSensor) : void
 * addGridCallback: function(callback(x, y, width, height, count)) : void
 
+## Build
+
+* install node.js
+* npm install -g grunt-cli
+* open project folder
+* npm install
+* grunt
+
 ## License
 
 MIT license.

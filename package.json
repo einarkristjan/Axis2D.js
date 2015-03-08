@@ -1,0 +1,9 @@
+{
+  "name": "Axis2D.js",
+  "version": "0.7.0dev",
+  "devDependencies": {
+    "grunt-contrib-jshint": "~0.11.0",
+    "grunt-contrib-uglify": "~0.8.0",
+    "grunt-contrib-concat": "~0.5.1"
+  }
+}
