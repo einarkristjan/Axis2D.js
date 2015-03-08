@@ -2,7 +2,53 @@
 
 A simple AABB collision / response library inspired by bump.lua and Box2D.
 
+## Responses
+
 ![collisions/queries](https://raw.githubusercontent.com/einarkristjan/Axis2D.js/dev/img/collisions-queries.png)
+
+### Axis2D built in response types
+* "slide" (default) - example: Platform characters
+* "touch" - example: Arrows
+* "bounce" - example: Arkanoid ball
+
+### Filtering
+
+Filter colliders using sensors and groupFilters
+
+    collider.setSensor(true);
+
+    collider1.setGroupName('player');
+    collider2.setGroupFilters(['player']);
+
+(sensors and groupFilters ignore touches)
+
+### Create custom type
+
+Use the .createResponseType()
+
+example:
+      axisWorld.createResponseType('slide', function(collider){
+        var sweep = collider._moveToDelta();
+
+        if(sweep.hit) {
+          if(sweep.hit.normal.x) {
+            collider._delta.x = 0;
+          }
+          else if(sweep.hit.normal.y) {
+            collider._delta.y = 0;
+          }
+
+          sweep = collider._moveToDelta();
+
+          if(sweep.hit) {
+            collider._delta.x = 0;
+            collider._delta.y = 0;
+          }
+        }
+
+        collider._AABB.pos.x += collider._delta.x;
+        collider._AABB.pos.y += collider._delta.y;
+      });
 
 ## API
 
@@ -40,8 +86,8 @@ A simple AABB collision / response library inspired by bump.lua and Box2D.
 * isSensor: function() : bool
 
 ### Axis2D.DebugDraw({axisWorld})
-* addColliderCallback: function(callback(x, y, width, height, isSensor) : void
-* addGridCallback: function(callback(x, y, width, height, count)) : void
+* setColliderCallback: function(callback(x, y, width, height, isSensor) : void
+* setGridCallback: function(callback(x, y, width, height, count)) : void
 
 ## Build
 
