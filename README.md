@@ -24,8 +24,6 @@ Filter responses using sensors and groupFilters
 
 ### Create custom type
 
-Use the .createResponseType()
-
 example:
 
       axisWorld.createResponseType('fast-slide', function(collider){
