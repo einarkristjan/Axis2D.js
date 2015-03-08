@@ -23,7 +23,7 @@ DEMO.World = function(params) {
     this.collisionManager = new Axis2D.World(this.cellSize);
     this.debugDraw = this.collisionManager.createDebugDraw();
 
-    this.debugDraw.addGridCallback(
+    this.debugDraw.setGridCallback(
       function(x, y, width, height, colliderCount) {
         var rend = that.renderer;
         rend.setColor(175, 175, 175);
@@ -32,7 +32,7 @@ DEMO.World = function(params) {
       }
     );
 
-    this.debugDraw.addColliderCallback(
+    this.debugDraw.setColliderCallback(
       function(x, y, width, height, isSensor) {
         var rend = that.renderer,
             r = isSensor ? 255 : 0,

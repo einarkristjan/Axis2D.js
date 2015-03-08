@@ -10,11 +10,11 @@ Axis2D.DebugDraw = function DebugDraw(axisWorld) {
 };
 
 Axis2D.DebugDraw.prototype = {
-  addColliderCallback: function(callback) {
+  setColliderCallback: function(callback) {
     Axis2D.typeCheck(callback, 'callback', 'Function');
     this._colliderCallback = callback;
   },
-  addGridCallback: function(callback) {
+  setGridCallback: function(callback) {
     Axis2D.typeCheck(callback, 'callback', 'Function');
     this._gridCallback = callback;
   },
