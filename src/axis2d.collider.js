@@ -77,14 +77,7 @@ Axis2D.Collider.prototype = {
   setResponseType: function(type) {
     Axis2D.typeCheck(type, 'type', 'String');
 
-    var needle = false;
-    for(var key in this._axisWorld._responses) {
-      if(key === type) {
-        needle = true;
-      }
-    }
-
-    if(!needle) {
+    if(Object.keys(this._axisWorld._responses).indexOf(type) === -1) {
       throw Error('response type does not exist in Axis2D World');
     }
 
