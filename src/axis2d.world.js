@@ -16,10 +16,10 @@ Axis2D.World = function World(cellSize) {
 
   // create default responses
   this.createResponseType('touch', function(collider){
-    var move = collider._sweepToDelta();
+    var sweep = collider._sweepToDelta();
 
-    if(move.hit) {
-      // hard stop on hit
+    if(sweep.hit) {
+      // stop on first hit
       collider._delta.x = 0;
       collider._delta.y = 0;
     }
@@ -93,7 +93,7 @@ Axis2D.World.prototype = {
 
       // sensor is a hard-coded response type that overwrites other types
       if(collider.isSensor()) {
-        // sensor hits added in moveToDelta,
+        // sensor hits added in sweepToDelta,
         // because sensors move through many colliders
         sweep = collider._sweepToDelta();
       }
