@@ -27,7 +27,7 @@ Filter responses using sensors and groupFilters
 example:
 
       axisWorld.createResponseType('fast-slide', function(collider){
-        var sweep = collider._moveToDelta();
+        var sweep = collider._sweepToDelta();
 
         if(sweep.hit) {
           if(sweep.hit.normal.x) {
@@ -39,17 +39,16 @@ example:
             collider._delta.y = 0;
           }
 
-          sweep = collider._moveToDelta();
+          sweep = collider._sweepToDelta();
 
           if(sweep.hit) {
             collider._delta.x = 0;
             collider._delta.y = 0;
           }
         }
-
-        collider._AABB.pos.x += collider._delta.x;
-        collider._AABB.pos.y += collider._delta.y;
       });
+
+(the delta is created with the collider.moveTo(x, y) function)
 
 ## API
 

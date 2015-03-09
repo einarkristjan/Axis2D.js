@@ -183,7 +183,7 @@ Axis2D.Collider.prototype = {
     }
     this._hits.push(hit);
   },
-  _moveToDelta: function() {
+  _sweepToDelta: function() {
     var cAABB = this._AABB,
         cDelta = this._delta,
         nearest = new intersect.Sweep(),
