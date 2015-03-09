@@ -16,21 +16,17 @@ Axis2D.World = function World(cellSize) {
 
   // create default responses
   this.createResponseType('touch', function(collider){
-    var sweep = collider._moveToDelta();
+    var move = collider._sweepToDelta();
 
-    if(sweep.hit) {
+    if(move.hit) {
       // hard stop on hit
       collider._delta.x = 0;
       collider._delta.y = 0;
     }
-
-    // fix position if any delta is left after hits
-    collider._AABB.pos.x += collider._delta.x;
-    collider._AABB.pos.y += collider._delta.y;
   });
 
   this.createResponseType('slide', function(collider){
-    var sweep = collider._moveToDelta();
+    var sweep = collider._sweepToDelta();
 
     if(sweep.hit) {
       // slide - undo the normal hit delta
@@ -42,22 +38,18 @@ Axis2D.World = function World(cellSize) {
       }
 
       // second sweep
-      sweep = collider._moveToDelta();
+      sweep = collider._sweepToDelta();
 
       if(sweep.hit) {
-        // if we got a hit on second run.. _moveToDelta has fixed pos
+        // if we got a hit on second run.. _sweepToDelta has fixed pos
         collider._delta.x = 0;
         collider._delta.y = 0;
       }
     }
-
-    // fix position if any delta is left after hits
-    collider._AABB.pos.x += collider._delta.x;
-    collider._AABB.pos.y += collider._delta.y;
   });
 
   this.createResponseType('bounce', function(collider){
-    var sweep = collider._moveToDelta();
+    var sweep = collider._sweepToDelta();
 
     if(sweep.hit) {
       // bounce - mirror the delta before next sweep
@@ -69,18 +61,14 @@ Axis2D.World = function World(cellSize) {
       }
 
       // second sweep
-      sweep = collider._moveToDelta();
+      sweep = collider._sweepToDelta();
 
       if(sweep.hit) {
-        // if we got a hit on second run.. _moveToDelta has fixed pos
+        // if we got a hit on second run.. _sweepToDelta has fixed pos
         collider._delta.x = 0;
         collider._delta.y = 0;
       }
     }
-
-    // fix position if any delta is left after hits
-    collider._AABB.pos.x += collider._delta.x;
-    collider._AABB.pos.y += collider._delta.y;
   });
 
 };
@@ -101,19 +89,21 @@ Axis2D.World.prototype = {
 
     // second pass - sweep dynamic colliders into other colliders + add hits
     this._dynamicColliders.forEach(function(collider){
+      var sweep;
+
       // sensor is a hard-coded response type that overwrites other types
       if(collider.isSensor()) {
         // sensor hits added in moveToDelta,
         // because sensors move through many colliders
-        sweep = collider._moveToDelta();
-
-        // sensors always move forward to it's first delta
-        collider._AABB.pos.x += collider._delta.x;
-        collider._AABB.pos.y += collider._delta.y;
+        sweep = collider._sweepToDelta();
       }
       else {
         this._responses[collider.getResponseType()].call(this, collider);
       }
+
+      // fix position if any delta is left after responses
+      collider._AABB.pos.x += collider._delta.x;
+      collider._AABB.pos.y += collider._delta.y;
 
       this._grid._placeColliderInGrid(collider);
 
@@ -253,7 +243,7 @@ Axis2D.World.prototype = {
       collider.setGroupFilters(groupFilter);
     }
 
-    sweep = collider._moveToDelta();
+    sweep = collider._sweepToDelta();
 
     if(collider._hits.length) {
       hits = collider._hits.slice();
