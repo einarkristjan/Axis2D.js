@@ -45,6 +45,11 @@ DEMO.Entity.prototype = {
     }
     return this;
   },
+  setColliderAsDynamic: function() {
+    if(this.collider) {
+      this.collider.setAsDynamic();
+    }
+  },
   setCollider: function(width, height, isSensor) {
     var cm = this.world.collisionManager,
         x = this._position.x,

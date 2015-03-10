@@ -41,9 +41,6 @@ Axis2D.Collider = function(axisWorld, centerX, centerY, width, height) {
 
   this._axisWorld._grid._placeColliderInGrid(this);
   this._axisWorld._colliders.push(this);
-
-  // find collisions on create
-  this._setAsDynamic();
 };
 
 Axis2D.Collider.prototype = {
@@ -52,7 +49,7 @@ Axis2D.Collider.prototype = {
     this._delta.y = y - this._AABB.pos.y;
 
     if(this._delta.x || this._delta.y) {
-      this._setAsDynamic();
+      this.setAsDynamic();
     }
   },
   resize: function(width, height) {
@@ -63,7 +60,7 @@ Axis2D.Collider.prototype = {
     if(this._AABB.half.x !== hW && this._AABB.half.y !== hH) {
       this._AABB.half.x = width / 2;
       this._AABB.half.y = height / 2;
-      this._setAsDynamic();
+      this.setAsDynamic();
     }
   },
   setGroupName: function(name) {
@@ -111,6 +108,14 @@ Axis2D.Collider.prototype = {
   },
   isSensor: function() {
     return this._isSensor;
+  },
+  setAsDynamic: function() {
+    // Could be used on static colliders to push them from each other and
+    // add hits.
+    if(!this._isDynamic) {
+      this._isDynamic = true;
+      this._axisWorld._dynamicColliders.push(this);
+    }
   },
   _placeInPotentialGrid: function() {
     // 1. move collider to the middle/center position
@@ -166,12 +171,6 @@ Axis2D.Collider.prototype = {
           }
         }
       }, this);
-    }
-  },
-  _setAsDynamic: function() {
-    if(!this._isDynamic) {
-      this._isDynamic = true;
-      this._axisWorld._dynamicColliders.push(this);
     }
   },
   _addHit: function(hit) {

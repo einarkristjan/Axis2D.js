@@ -69,7 +69,8 @@
             };
   })();
 
-  var width = 768,
+  var i,
+      width = 768,
       height = 576,
       canvas = document.querySelector('canvas'),
       renderer = new DEMO.CanvasRenderer(canvas, width, height),
@@ -315,6 +316,20 @@
       .onCollision(function(hits, touching){
         console.log('thirdHit', touching, hits);
       });
+
+  for(i = 0; i < 30; i += 10) {
+    demoWorld
+      .createEntity(width - 50 + i, 240 + i)
+        .setCollider(10 + i, 10 + i);
+  }
+
+  for(i = 0; i < 30; i += 10) {
+    demoWorld
+      .createEntity(width - 50 + i, 330 + i)
+        .setCollider(10 + i, 10 + i)
+        .setColliderAsDynamic();
+        // setAsDynamic will push these static colliders from each other
+  }
 
   (function loop() {
     requestAnimFrame(loop);

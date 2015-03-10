@@ -84,6 +84,7 @@ example:
 * getTouches: function() : {touches}
 * setSensor: function(bool) : void
 * isSensor: function() : bool
+* setAsDynamic: function() void
 
 ### Axis2D.DebugDraw({axisWorld})
 * setColliderCallback: function(callback(x, y, width, height, isSensor) : void
@@ -104,6 +105,10 @@ To include submodule after fork/clone, run command:
     git submodule update --init --recursive
 
 Also, GitHub currently doesn't include submodules in Downloads/Source code.
+
+## Version numbering
+
+This library follows [Semantic Versioning](http://semver.org/)
 
 ## License
 
