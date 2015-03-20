@@ -123,9 +123,9 @@
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1]
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1]
   ], 64);
 
   demoWorld
@@ -219,7 +219,7 @@
 
   demoWorld
     .createEntity(width/2, height/2)
-      .setCollider(120, 100, true)
+      .setCollider(120, 75, true)
       .setUserData({
         left: true
       })
@@ -272,12 +272,12 @@
       });
 
   demoWorld
-    .createEntity(128, height - 128)
+    .createEntity(width / 6, height - 128)
       .setCollider(80, 70)
       .setLoop(function(){
         // console.log(this.collider.getTouches(), this.collider.getHits());
         if(this.world._frameCount === 10) {
-          this.collider.setCollidesX(false);
+          this.collider.setCollides(true, false, false, true);
         }
       })
       .onCollision(function(hits, touching){

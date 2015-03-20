@@ -24,8 +24,12 @@ Axis2D.Collider = function(axisWorld, centerX, centerY, width, height) {
     bottom: false
   };
 
-  this._collidesX = true;
-  this._collidesY = true;
+  this._collides = {
+    top: true,
+    left: true,
+    right: true,
+    bottom: true
+  };
 
   this._potentialHitColliders = [];
 
@@ -120,19 +124,20 @@ Axis2D.Collider.prototype = {
       this._axisWorld._dynamicColliders.push(this);
     }
   },
-  setCollidesX: function(bool) {
-    Axis2D.typeCheck(bool, 'bool', 'Boolean');
-    this._collidesX = bool;
+  setCollides: function(top, left, right, bottom) {
+    Axis2D.typeCheck(top, 'top', 'Boolean');
+    Axis2D.typeCheck(left, 'left', 'Boolean');
+    Axis2D.typeCheck(right, 'right', 'Boolean');
+    Axis2D.typeCheck(bottom, 'bottom', 'Boolean');
+    this._collides = {
+      top: top,
+      left: left,
+      right: right,
+      bottom: bottom
+    };
   },
-  getCollidesX: function() {
-    return this._collidesX;
-  },
-  setCollidesY: function(bool) {
-    Axis2D.typeCheck(bool, 'bool', 'Boolean');
-    this._collidesY = bool;
-  },
-  getCollidesY: function() {
-    return this._collidesY;
+  getCollides: function() {
+    return this._collides;
   },
   _placeInPotentialGrid: function() {
     // 1. move collider to the middle/center position
@@ -169,28 +174,25 @@ Axis2D.Collider.prototype = {
   _calculateTouches: function() {
     if(!this.isSensor()) {
       this._hits.forEach(function(hit){
-        var oc = hit.collider,
+        var c = this,
+            oc = hit.collider,
             rf = this._groupFilters,
             otherNotInFilter = rf.indexOf(oc._groupName) === -1;
 
         if(!oc.isSensor() && otherNotInFilter) {
 
-          if(this._collidesX && oc._collidesX) {
-            if(hit.normal.x > 0) {
-              this._isTouching.left = true;
-            }
-            else if(hit.normal.x < 0) {
-              this._isTouching.right = true;
-            }
+          if(hit.normal.x > 0 && c._collides.left && oc._collides.right) {
+            this._isTouching.left = true;
+          }
+          else if(hit.normal.x < 0 && c._collides.right && oc._collides.left) {
+            this._isTouching.right = true;
           }
 
-          if(this._collidesY && oc._collidesY) {
-            if(hit.normal.y > 0) {
-              this._isTouching.top = true;
-            }
-            else if(hit.normal.y < 0) {
-              this._isTouching.bottom = true;
-            }
+          if(hit.normal.y > 0 && c._collides.top && oc._collides.bottom) {
+            this._isTouching.top = true;
+          }
+          else if(hit.normal.y < 0 && c._collides.bottom && oc._collides.top) {
+            this._isTouching.bottom = true;
           }
 
         }
@@ -231,8 +233,10 @@ Axis2D.Collider.prototype = {
         sweep.hit.delta.x += sweep.hit.normal.x * 0.99;
         sweep.hit.delta.y += sweep.hit.normal.y * 0.99;
 
-        if((!this._collidesX && !sweep.hit.normal.y) ||
-           (!this._collidesY && !sweep.hit.normal.x)) {
+        if((!this._collides.left && sweep.hit.normal.x > 0) ||
+           (!this._collides.right && sweep.hit.normal.x < 0) ||
+           (!this._collides.top && sweep.hit.normal.y > 0) ||
+           (!this._collides.bottom && sweep.hit.normal.y < 0)) {
           disabledCollisionsAxis = true;
         }
 
@@ -246,8 +250,10 @@ Axis2D.Collider.prototype = {
         }
         else if (sweep.time < nearest.time) {
 
-          if((!oc._collidesX && !sweep.hit.normal.y) ||
-             (!oc._collidesY && !sweep.hit.normal.x)) {
+          if((!oc._collides.left && sweep.hit.normal.x < 0) ||
+             (!oc._collides.right && sweep.hit.normal.x > 0) ||
+             (!oc._collides.top && sweep.hit.normal.y < 0) ||
+             (!oc._collides.bottom && sweep.hit.normal.y > 0)) {
             disabledCollisionsAxis = true;
           }
 

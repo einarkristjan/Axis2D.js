@@ -93,10 +93,8 @@ If you need to push static colliders from each other without moving, use the .se
 * setSensor: function(bool) : void
 * isSensor: function() : bool
 * setAsDynamic: function() : void
-* setCollidesX: function(bool) : void
-* getCollidesX: function() : bool
-* setCollidesX: function(bool) : void
-* getCollidesY: function() : bool
+* setCollides: function(top, left, right, bottom) : void
+* getCollides: function() : {collides}
 
 ### Axis2D.DebugDraw({axisWorld})
 * setColliderCallback: function(callback(collider, x, y, width, height) : void
