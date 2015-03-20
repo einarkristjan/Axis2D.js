@@ -13,14 +13,14 @@ A simple AABB collision / response library inspired by bump.lua and Box2D.
 
 ### Filtering
 
-Filter responses using sensors, groupFilters or collidesX/collidesY.
+Filter responses using sensors, groupFilters or collides.
 
     collider.setSensor(true);
 
     collider1.setGroupName('player');
     collider2.setGroupFilters(['player']);
 
-    collider3.setCollidesX(false);
+    collider3.setCollides(false, false, true, true);
 
 (sensors and groupFilters ignore all touches)
 
