@@ -33,9 +33,11 @@ DEMO.World = function(params) {
     );
 
     this.debugDraw.setColliderCallback(
-      function(x, y, width, height, isSensor) {
+      function(collider, x, y, width, height) {
         var rend = that.renderer,
-            r = isSensor ? 255 : 0,
+            r = collider.isSensor() ? 255 : 0,
+            brX = x + width,
+            brY = y + height,
             g = 255,
             b = 255;
 
@@ -43,7 +45,14 @@ DEMO.World = function(params) {
         rend.fillRect(x, y, width, height);
 
         rend.setColor(r, g, b);
-        rend.strokeRect(x, y, width, height);
+        if(!collider.isDisabledCollisionsX()) {
+          rend.line(x, y, x, brY);
+          rend.line(brX, y, brX, brY);
+        }
+        if(!collider.isDisabledCollisionsY()) {
+          rend.line(x, y, brX, y);
+          rend.line(x, brY, brX, brY);
+        }
       }
     );
 

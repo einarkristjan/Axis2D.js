@@ -27,18 +27,16 @@ Axis2D.DebugDraw.prototype = {
     }
   },
   _getColliders: function(callback) {
-    var x, y, cX, cY, w, h,
+    var x, y, w, h,
         world = this._axisWorld;
 
     world._colliders.forEach(function(c){
       x = c._AABB.pos.x - c._AABB.half.x;
       y = c._AABB.pos.y - c._AABB.half.y;
-      cX = x + c._AABB.half.x;
-      cY = y + c._AABB.half.y;
       w = c._AABB.half.x * 2;
       h = c._AABB.half.y * 2;
 
-      callback(x, y, w, h, c.isSensor());
+      callback(c, x, y, w, h);
     }, this);
   },
   _getGrid: function(callback) {

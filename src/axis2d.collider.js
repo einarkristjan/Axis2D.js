@@ -24,6 +24,9 @@ Axis2D.Collider = function(axisWorld, centerX, centerY, width, height) {
     bottom: false
   };
 
+  this._disabledCollisionsX = false;
+  this._disabledCollisionsY = false;
+
   this._potentialHitColliders = [];
 
   this._isSensor = false;
@@ -117,6 +120,20 @@ Axis2D.Collider.prototype = {
       this._axisWorld._dynamicColliders.push(this);
     }
   },
+  setDisabledCollisionsX: function(bool) {
+    Axis2D.typeCheck(bool, 'bool', 'Boolean');
+    this._disabledCollisionsX = bool;
+  },
+  isDisabledCollisionsX: function() {
+    return this._disabledCollisionsX;
+  },
+  setDisabledCollisionsY: function(bool) {
+    Axis2D.typeCheck(bool, 'bool', 'Boolean');
+    this._disabledCollisionsY = bool;
+  },
+  isDisabledCollisionsY: function() {
+    return this._disabledCollisionsY;
+  },
   _placeInPotentialGrid: function() {
     // 1. move collider to the middle/center position
     // 2. make the collider take upp all the space it moved in
@@ -157,18 +174,25 @@ Axis2D.Collider.prototype = {
             otherNotInFilter = rf.indexOf(oc._groupName) === -1;
 
         if(!oc.isSensor() && otherNotInFilter) {
-          if(hit.normal.x > 0) {
-            this._isTouching.left = true;
+
+          if(!this._disabledCollisionsX && !oc._disabledCollisionsX) {
+            if(hit.normal.x > 0) {
+              this._isTouching.left = true;
+            }
+            else if(hit.normal.x < 0) {
+              this._isTouching.right = true;
+            }
           }
-          else if(hit.normal.x < 0) {
-            this._isTouching.right = true;
+
+          if(!this._disabledCollisionsY && !oc._disabledCollisionsY) {
+            if(hit.normal.y > 0) {
+              this._isTouching.top = true;
+            }
+            else if(hit.normal.y < 0) {
+              this._isTouching.bottom = true;
+            }
           }
-          if(hit.normal.y > 0) {
-            this._isTouching.top = true;
-          }
-          else if(hit.normal.y < 0) {
-            this._isTouching.bottom = true;
-          }
+
         }
       }, this);
     }
@@ -199,15 +223,21 @@ Axis2D.Collider.prototype = {
           crf = this._groupFilters,
           ocrf = oc._groupFilters,
           cFilterFound = ocrf.indexOf(this._groupName) !== -1,
-          ocFilterFound = crf.indexOf(oc._groupName) !== -1;
+          ocFilterFound = crf.indexOf(oc._groupName) !== -1,
+          disabledCollisionsAxis = false;
 
       if(sweep.hit) {
-        // bug in intersect?
+        // 0.99 = bug in intersect?
         sweep.hit.delta.x += sweep.hit.normal.x * 0.99;
         sweep.hit.delta.y += sweep.hit.normal.y * 0.99;
 
+        if((this._disabledCollisionsX && !sweep.hit.normal.y) ||
+           (this._disabledCollisionsY && !sweep.hit.normal.x)) {
+          disabledCollisionsAxis = true;
+        }
+
         // sensor/filter check - ignore nearest
-        if(this.isSensor() || cFilterFound) {
+        if(this.isSensor() || cFilterFound || disabledCollisionsAxis) {
           this._addHits(sweep.hit, [oc]);
 
           // move all the way back for next sweep
@@ -215,8 +245,14 @@ Axis2D.Collider.prototype = {
           this._AABB.pos.y -= sweep.hit.delta.y;
         }
         else if (sweep.time < nearest.time) {
+
+          if((oc._disabledCollisionsX && !sweep.hit.normal.y) ||
+             (oc._disabledCollisionsY && !sweep.hit.normal.x)) {
+            disabledCollisionsAxis = true;
+          }
+
           // other sensor/filter check - ignore nearest
-          if(oc.isSensor() || ocFilterFound) {
+          if(oc.isSensor() || ocFilterFound || disabledCollisionsAxis) {
             this._addHits(sweep.hit, [oc]);
 
             // move all the way back for next sweep

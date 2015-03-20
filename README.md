@@ -84,10 +84,14 @@ example:
 * getTouches: function() : {touches}
 * setSensor: function(bool) : void
 * isSensor: function() : bool
-* setAsDynamic: function() void
+* setAsDynamic: function() : void
+* setDisabledCollisionsX: function(bool) : void
+* isDisabledCollisionsX: function() : bool
+* setDisabledCollisionsX: function(bool) : void
+* isDisabledCollisionsY: function() : bool
 
 ### Axis2D.DebugDraw({axisWorld})
-* setColliderCallback: function(callback(x, y, width, height, isSensor) : void
+* setColliderCallback: function(callback(collider, x, y, width, height) : void
 * setGridCallback: function(callback(x, y, width, height, count)) : void
 
 ## Build
