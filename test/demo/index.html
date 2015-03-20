@@ -39,6 +39,7 @@
 
   <!-- Axis2D depends on the intersect library -->
 
+  <!--
   <script src="../../intersect/intersect.js"></script>
 
   <script src="../../src/axis2d.js"></script>
@@ -46,8 +47,9 @@
   <script src="../../src/axis2d.world.js"></script>
   <script src="../../src/axis2d.collider.js"></script>
   <script src="../../src/axis2d.debugdraw.js"></script>
+  -->
 
-  <!-- <script src="../../build/axis2d.js"></script> -->
+  <script src="../../build/axis2d.js"></script>
 
   <script src="demo.world.js"></script>
   <script src="demo.inputs.js"></script>
@@ -275,7 +277,7 @@
       .setLoop(function(){
         // console.log(this.collider.getTouches(), this.collider.getHits());
         if(this.world._frameCount === 10) {
-          this.collider.setDisabledCollisionsX(true);
+          this.collider.setCollidesX(false);
         }
       })
       .onCollision(function(hits, touching){

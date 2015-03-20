@@ -45,11 +45,11 @@ DEMO.World = function(params) {
         rend.fillRect(x, y, width, height);
 
         rend.setColor(r, g, b);
-        if(!collider.isDisabledCollisionsX()) {
+        if(collider.getCollidesX()) {
           rend.line(x, y, x, brY);
           rend.line(brX, y, brX, brY);
         }
-        if(!collider.isDisabledCollisionsY()) {
+        if(collider.getCollidesY()) {
           rend.line(x, y, brX, y);
           rend.line(x, brY, brX, brY);
         }
