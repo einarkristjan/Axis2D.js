@@ -277,7 +277,7 @@
       .setLoop(function(){
         // console.log(this.collider.getTouches(), this.collider.getHits());
         if(this.world._frameCount === 10) {
-          this.collider.setCollides(true, false, false, true);
+          this.collider.setSolidEdges(true, false, false, true);
         }
       })
       .onCollision(function(hits, touching){

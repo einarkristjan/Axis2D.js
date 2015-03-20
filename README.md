@@ -13,14 +13,15 @@ A simple AABB collision / response library inspired by bump.lua and Box2D.
 
 ### Filtering
 
-Filter responses using sensors, groupFilters or collides.
+Filter responses using sensors, group filters or by disabling edges.
 
     collider.setSensor(true);
 
     collider1.setGroupName('player');
     collider2.setGroupFilters(['player']);
 
-    collider3.setCollides(false, false, true, true);
+    // solidEdges parameters: top, left, right, bottom
+    collider3.setSolidEdges(false, false, true, true);
 
 (sensors and groupFilters ignore all touches)
 
@@ -93,8 +94,8 @@ If you need to push static colliders from each other without moving, use the .se
 * setSensor: function(bool) : void
 * isSensor: function() : bool
 * setAsDynamic: function() : void
-* setCollides: function(top, left, right, bottom) : void
-* getCollides: function() : {collides}
+* setSolidEdges: function(top, left, right, bottom) : void
+* getSolidEdges: function() : {edges}
 
 ### Axis2D.DebugDraw({axisWorld})
 * setColliderCallback: function(callback(collider, x, y, width, height) : void

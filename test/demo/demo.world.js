@@ -36,7 +36,7 @@ DEMO.World = function(params) {
       function(collider, x, y, width, height) {
         var rend = that.renderer,
             r = collider.isSensor() ? 255 : 0,
-            collides = collider.getCollides(),
+            edges = collider.getSolidEdges(),
             brX = x + width,
             brY = y + height,
             g = 255,
@@ -46,16 +46,16 @@ DEMO.World = function(params) {
         rend.fillRect(x, y, width, height);
 
         rend.setColor(r, g, b);
-        if(collides.left) {
+        if(edges.left) {
           rend.line(x, y, x, brY);
         }
-        if(collides.right) {
+        if(edges.right) {
           rend.line(brX, y, brX, brY);
         }
-        if(collides.top) {
+        if(edges.top) {
           rend.line(x, y, brX, y);
         }
-        if(collides.bottom) {  
+        if(edges.bottom) {
           rend.line(x, brY, brX, brY);
         }
       }
