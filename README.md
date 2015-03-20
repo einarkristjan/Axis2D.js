@@ -13,14 +13,16 @@ A simple AABB collision / response library inspired by bump.lua and Box2D.
 
 ### Filtering
 
-Filter responses using sensors and groupFilters
+Filter responses using sensors, groupFilters or collidesX/collidesY.
 
     collider.setSensor(true);
 
     collider1.setGroupName('player');
     collider2.setGroupFilters(['player']);
 
-(sensors and groupFilters ignore touches)
+    collider3.setCollidesX(false);
+
+(sensors and groupFilters ignore all touches)
 
 ### Create custom type
 
@@ -48,7 +50,13 @@ example:
         }
       });
 
-(the delta is created with the collider.moveTo(x, y) function)
+(the initial delta is created with the collider.moveTo(x, y) function)
+
+## Dynamic vs. Static Colliders
+
+When colliders are moved or resized, they are marked as dynamic colliders. At the end of the update function, dynamic colliders are set back as static colliders. This is done for performance.
+
+If you need to push static colliders from each other without moving, use the .setAsDynamic() function.
 
 ## API
 
@@ -85,10 +93,10 @@ example:
 * setSensor: function(bool) : void
 * isSensor: function() : bool
 * setAsDynamic: function() : void
-* setDisabledCollisionsX: function(bool) : void
-* isDisabledCollisionsX: function() : bool
-* setDisabledCollisionsX: function(bool) : void
-* isDisabledCollisionsY: function() : bool
+* setCollidesX: function(bool) : void
+* getCollidesX: function() : bool
+* setCollidesX: function(bool) : void
+* getCollidesY: function() : bool
 
 ### Axis2D.DebugDraw({axisWorld})
 * setColliderCallback: function(callback(collider, x, y, width, height) : void
