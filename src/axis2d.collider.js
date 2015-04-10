@@ -70,6 +70,20 @@ Axis2D.Collider.prototype = {
       this.setAsDynamic();
     }
   },
+  remove: function() {
+    var aw = this._axisWorld,
+        collidersIndex = aw._colliders.indexOf(this),
+        dynamicCollidersIndex = aw._dynamicColliders.indexOf(this);
+
+    aw._grid._clearColliderFromGrid(this);
+
+    if(collidersIndex !== -1) {
+      aw._colliders.splice(collidersIndex, 1);
+    }
+    if(dynamicCollidersIndex !== -1) {
+      aw._dynamicColliders.splice(dynamicCollidersIndex, 1);
+    }
+  },
   setGroupName: function(name) {
     Axis2D.typeCheck(name, 'name', 'String');
     this._groupName = name;

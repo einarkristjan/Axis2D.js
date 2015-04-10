@@ -64,7 +64,6 @@ If you need to push static colliders from each other without moving, use the .se
 ### Axis2D.World(cellSize)
 * update: function() : void
 * createCollider: function(centerX, centerY, width, height) : Axis2D.Collider
-* removeCollider: function({collider}) : void
 * createDebugDraw: function() : Axis2D.DebugDraw
 * debugDraw: function() : void
 * createResponseType: function("name", response()) : void
@@ -81,6 +80,7 @@ If you need to push static colliders from each other without moving, use the .se
 ### Axis2D.Collider({axisWorld}, centerX, centerY, width, height)
 * moveTo: function(x, y) : void
 * resize: function(width, height) : void
+* remove: function() : void
 * setGroupName: function("name") : void
 * setGroupFilters: function(["names"]) : void
 * setResponseType: function("type") : void

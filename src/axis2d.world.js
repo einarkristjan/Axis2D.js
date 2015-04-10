@@ -130,20 +130,6 @@ Axis2D.World.prototype = {
   createCollider: function(centerX, centerY, width, height) {
     return new Axis2D.Collider(this, centerX, centerY, width, height);
   },
-  removeCollider: function(collider) {
-    Axis2D.typeCheck(collider, 'collider', Axis2D.Collider);
-    var collidersIndex = this._colliders.indexOf(collider),
-        dynamicCollidersIndex = this._dynamicColliders.indexOf(collider);
-
-    this._grid._clearColliderFromGrid(collider);
-
-    if(collidersIndex !== -1) {
-      this._colliders.splice(collidersIndex, 1);
-    }
-    if(dynamicCollidersIndex !== -1) {
-      this._dynamicColliders.splice(dynamicCollidersIndex, 1);
-    }
-  },
   createDebugDraw: function() {
     return new Axis2D.DebugDraw(this);
   },
@@ -218,7 +204,7 @@ Axis2D.World.prototype = {
       }
     }, true);
 
-    this.removeCollider(sensor);
+    sensor.remove();
 
     return colliders;
   },
@@ -254,7 +240,7 @@ Axis2D.World.prototype = {
       endY = sweep.hit.pos.y;
     }
 
-    this.removeCollider(collider);
+    collider.remove();
 
     callback(new intersect.Point(endX, endY), hits);
   }
