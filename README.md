@@ -75,7 +75,7 @@ If you need to push static colliders from each other without moving, use the .se
 * countGridCells: function() : Number
 * setCellSize: function(cellSize) : void
 * queryPoint: function(x, y) : [Axis2D.Collider]
-* queryRect: function(centerX, centerY, width, height) : [Axis2D.Collider]
+* queryRect: function(x, y, width, height) : [Axis2D.Collider]
 * rayCast: function(callback({endPoint}, [hits]), x1, y1, x2, y2, [groupFilter]) : void
 
 ### Axis2D.Collider({axisWorld}, centerX, centerY, width, height)
@@ -119,7 +119,7 @@ Also, GitHub currently doesn't include submodules in Downloads/Source code.
 
 ## Version numbering
 
-This library follows [Semantic Versioning](http://semver.org/)
+The library follows [Semantic Versioning](http://semver.org/)
 
 ## License
 

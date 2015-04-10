@@ -200,14 +200,14 @@ Axis2D.World.prototype = {
 
     return colliders;
   },
-  queryRect: function(centerX, centerY, width, height) {
-    Axis2D.typeCheck(centerX, 'centerX', 'Number');
-    Axis2D.typeCheck(centerY, 'centerY', 'Number');
+  queryRect: function(x, y, width, height) {
+    Axis2D.typeCheck(x, 'x', 'Number');
+    Axis2D.typeCheck(y, 'y', 'Number');
     Axis2D.typeCheck(width, 'width', 'Number');
     Axis2D.typeCheck(height, 'height', 'Number');
 
     var colliders = [],
-        sensor = this.createCollider(centerX, centerY, width, height);
+        sensor = this.createCollider(x+width/2, y+height/2, width, height);
 
     sensor.setSensor(true);
     sensor._placeInPotentialGrid();
