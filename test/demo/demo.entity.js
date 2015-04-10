@@ -69,6 +69,10 @@ DEMO.Entity.prototype = {
 
     return this;
   },
+  removeCollider: function() {
+    this.collider.remove();
+    delete this.collider;
+  },
   setLoop: function(script) {
     this._loop = script;
 

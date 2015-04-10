@@ -47,7 +47,8 @@
   <script src="../../src/axis2d.world.js"></script>
   <script src="../../src/axis2d.collider.js"></script>
   <script src="../../src/axis2d.debugdraw.js"></script>
-  -->
+
+-->
 
   <script src="../../build/axis2d.js"></script>
 
@@ -294,6 +295,7 @@
       })
       .onCollision(function(hits, touching){
         console.log('firstHit', touching, hits);
+        hits[0].entity.removeCollider();
       });
 
   demoWorld
