@@ -295,7 +295,9 @@
       })
       .onCollision(function(hits, touching){
         console.log('firstHit', touching, hits);
-        hits[0].entity.removeCollider();
+        if(this.world._frameCount === 100) {
+          hits[0].entity.removeCollider();
+        }
       });
 
   demoWorld
